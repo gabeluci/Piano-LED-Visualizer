@@ -13,6 +13,9 @@ function translateStaticContent() {
     // Set the lang attribute on the <html> element
     document.documentElement.setAttribute('lang', language);
 
+    // Set the lang attribute on the <html> element
+    document.documentElement.setAttribute('lang', language);
+
     // Translate text content
     const textElements = document.querySelectorAll('[data-translate]');
     textElements.forEach((element) => {
@@ -272,6 +275,12 @@ const translations = {
         led_animation_on_idle: "LED animation on IDLE",
         after_minutes: "after minutes (0 - never)",
         animation_type: "Animation type",
+        idle_timeout: "Idle timeout (minutes)",
+        idle_timeout_tooltip: "Time before entering IDLE state for CPU saving\nMain loop runs at 0.9s delay in IDLE (vs 0.006s normally)\nMinimum: 1 minute",
+        screensaver_delay: "Screensaver delay (minutes)",
+        screensaver_delay_tooltip: "Time before screensaver starts\n0 = never start screensaver\nRefreshes at 5Hz in NORMAL, 1Hz in IDLE state",
+        screen_off_delay: "Screen off delay (minutes)",
+        screen_off_delay_tooltip: "Time before physical screen turns off\n0 = never turn off screen\nIndependent from IDLE state",
 
         //homepage
         advanced_mode: "Advanced mode",
@@ -293,6 +302,14 @@ const translations = {
         playback_port: "Playback Port",
         cover_state: "Cover State",
         screen: "Screen",
+        lcd_type: "LCD Type",
+        lcd_type_change_confirm: "Changing LCD type to {0} will restart the visualizer. This may take a few moments. Continue?",
+        lcd_type_change_success: "LCD type changed. The visualizer is restarting. The page will refresh shortly.",
+        lcd_type_change_error: "Failed to change LCD type: {0}",
+        led_pin: "LED Pin",
+        led_pin_change_confirm: "Changing LED pin to {0} will restart the visualizer. This may take a moment. Continue?",
+        led_pin_change_success: "LED pin changed. Visualizer is restarting. Page will refresh shortly.",
+        led_pin_change_error: "Failed to change LED pin: {0}",
         reset_settings_to_default: "Reset settings to default",
         confirm: "Confirm",
         restart_rpi: "Restart RPi",
@@ -311,6 +328,26 @@ const translations = {
         incorrect_password: "If an incorrect password is entered, it might take a few minutes for the hotspot to be reestablished.",
         if_the_hotspot: "If the Hotspot doesn't appear after 5 minutes, please restart the device",
         connect: "Connect",
+        session_summary: "Session Summary",
+        right_hand_mistakes: "Right Hand Mistakes",
+        right_hand_delay: "Long Response Time - Right Hand",
+        left_hand_mistakes: "Left Hand Mistakes",
+        left_hand_delay: "Long Response Time - Left Hand",
+        right_hand_notes: "Right Hand Notes",
+        left_hand_notes: "Left Hand Notes",
+        right_hand_mistakes: "Right Hand Errors",
+        left_hand_mistakes: "Left Hand Errors",
+        note_timing_vs_delay: "Note Timing vs Delay",
+        chart_tooltip_label_delay: "Delay",
+        chart_tooltip_label_at_time: "At",
+        mistakes: "Timing Mistake",
+        max_acceptaple_delay: "Maximum Allowable Delay",
+        time: "MIDI Time (seconds)",
+        delay: "Delay (seconds)",
+        reset_zoom: "Reset",
+        learning_status: "Start Learning"
+        
+        
 
 
     },
@@ -529,6 +566,12 @@ const translations = {
         led_animation_on_idle: "Animacja w trakcie bezczynności",
         after_minutes: "po ilu minutach (0 - nigdy)",
         animation_type: "Typ animacji",
+        idle_timeout: "Limit czasu bezczynności (minuty)",
+        idle_timeout_tooltip: "Czas przed wejściem w stan IDLE w celu oszczędzania CPU\nPętla główna działa z opóźnieniem 0,9s w IDLE (vs 0,006s normalnie)\nMinimum: 1 minuta",
+        screensaver_delay: "Opóźnienie wygaszacza ekranu (minuty)",
+        screensaver_delay_tooltip: "Czas przed uruchomieniem wygaszacza ekranu\n0 = nigdy nie uruchamiaj wygaszacza\nOdświeżanie 5Hz w NORMAL, 1Hz w stanie IDLE",
+        screen_off_delay: "Opóźnienie wyłączenia ekranu (minuty)",
+        screen_off_delay_tooltip: "Czas przed wyłączeniem fizycznego ekranu\n0 = nigdy nie wyłączaj ekranu\nNiezależne od stanu IDLE",
 
         //homepage
         advanced_mode: "Tryb zaawansowany",
@@ -550,6 +593,14 @@ const translations = {
         playback_port: "Port odtwarzania",
         cover_state: "Stan pokrywy",
         screen: "Ekran",
+        lcd_type: "Typ LCD",
+        lcd_type_change_confirm: "Zmiana typu LCD na {0} spowoduje restart wizualizatora. Może to chwilę potrwać. Kontynuować?",
+        lcd_type_change_success: "Typ LCD zmieniony. Wizualizator się restartuje. Strona odświeży się za chwilę.",
+        lcd_type_change_error: "Nie udało się zmienić typu LCD: {0}",
+        led_pin: "Pin LED",
+        led_pin_change_confirm: "Zmiana pinu LED na {0} spowoduje restart wizualizatora. Może to chwilę potrwać. Kontynuować?",
+        led_pin_change_success: "Pin LED zmieniony. Wizualizator się restartuje. Strona odświeży się za chwilę.",
+        led_pin_change_error: "Nie udało się zmienić pinu LED: {0}",
         reset_settings_to_default: "Przywróć ustawienia domyślne",
         confirm: "Potwierdź",
         restart_rpi: "Zrestartuj RPi",
@@ -568,6 +619,38 @@ const translations = {
         incorrect_password: "Jeśli wprowadzone zostało niepoprawne hasło, może minąć kilka minut zanim hotspot zostanie ponownie utworzony." ,
         if_the_hotspot: "Jeśli Hotspot nie pojawi się po 5 minutach, proszę zrestartować urządzenie",
         connect: "Połącz",
+        session_summary: "Podsumowanie Gry",
+        right_hand_mistakes: "Błędy Prawej Ręki",
+        right_hand_delay: "Długi Czas Reakcji - Prawa Ręka",
+        left_hand_mistakes: "Błędy Lewej Ręki",
+        left_hand_delay: "Długi Czas Reakcji - Lewa Ręka",
+        right_hand_notes: "Nuty Prawej Ręki",
+        left_hand_notes: "Nuty Lewej Ręki",
+        right_hand_mistakes: "Błędy Prawej Ręki",
+        left_hand_mistakes: "Błędy Lewej Ręki",
+        note_timing_vs_delay: "Synchronizacja Nut vs Opóźnienie",
+        chart_tooltip_label_delay: "Opóźnienie",
+        chart_tooltip_label_at_time: "O",
+        mistakes: "Błąd Czasowy",
+        max_acceptaple_delay: "Maksymalne Dozwolone Opóźnienie",
+        time: "Czas MIDI (sekundy)",
+        delay: "Opóźnienie (sekundy)",
+        reset_zoom: "Resetuj",
+        learning_status: "Rozpocznij Nauczanie",
+
+        // score and profiles
+        score: "Wynik",
+        combo: "Kombo",
+        multiplier: "Mnożnik",
+
+        profile_label: "Profil",
+        create_profile: "Utwórz profil",
+        show_score: "Pokaż wynik",
+        show_summary: "Pokaż podsumowanie",
+        highscore: "Najwyższy wynik",
+        new_profile: "profil nowy", 
+
+        
     },
 
     fr: {
@@ -783,6 +866,12 @@ const translations = {
         led_animation_on_idle: "Animation LED en veille",
         after_minutes: "après minutes (0 - jamais)",
         animation_type: "Type d'animation",
+        idle_timeout: "Délai d'inactivité (minutes)",
+        idle_timeout_tooltip: "Temps avant d'entrer en état IDLE pour économiser le CPU\nLa boucle principale s'exécute avec un délai de 0,9s en IDLE (vs 0,006s normalement)\nMinimum : 1 minute",
+        screensaver_delay: "Délai de l'économiseur d'écran (minutes)",
+        screensaver_delay_tooltip: "Temps avant le démarrage de l'économiseur d'écran\n0 = ne jamais démarrer l'économiseur d'écran\nRafraîchissement à 5Hz en NORMAL, 1Hz en état IDLE",
+        screen_off_delay: "Délai d'extinction de l'écran (minutes)",
+        screen_off_delay_tooltip: "Temps avant l'extinction de l'écran physique\n0 = ne jamais éteindre l'écran\nIndépendant de l'état IDLE",
 
 
         //homepage
@@ -805,6 +894,14 @@ const translations = {
         playback_port: "Port de lecture",
         cover_state: "État de la couverture",
         screen: "Écran",
+        lcd_type: "Type d'écran LCD",
+        lcd_type_change_confirm: "Changer le type d'écran LCD vers {0} redémarrera le visualiseur. Cela peut prendre quelques instants. Continuer?",
+        lcd_type_change_success: "Type d'écran LCD modifié. Le visualiseur redémarre. La page sera actualisée sous peu.",
+        lcd_type_change_error: "Échec du changement de type d'écran LCD: {0}",
+        led_pin: "Broche LED",
+        led_pin_change_confirm: "Changer la broche LED vers {0} redémarrera le visualiseur. Cela peut prendre un instant. Continuer?",
+        led_pin_change_success: "Broche LED modifiée. Le visualiseur redémarre. La page sera actualisée sous peu.",
+        led_pin_change_error: "Échec du changement de broche LED: {0}",
         reset_settings_to_default: "Réinitialiser les paramètres par défaut",
         confirm: "Confirmer",
         restart_rpi: "Redémarrer RPi",
@@ -824,6 +921,41 @@ const translations = {
         incorrect_password: "Si un mot de passe incorrect est entré, il peut falloir quelques minutes pour que le hotspot soit rétabli.",
         if_the_hotspot: "Si le hotspot n'apparaît pas après 5 minutes, veuillez redémarrer l'appareil",
         connect: "Connecter",
+        
+        
+        
+        session_summary: "Résumé de la Partie",
+        right_hand_mistakes: "Erreurs de la Main Droite",
+        right_hand_delay: "Temps De Réaction Long - Main Droite",
+        left_hand_mistakes: "Erreurs de la Main Gauche",
+        left_hand_delay: "Temps De Réaction Long - Main Gauche",
+        right_hand_notes: "Notes de la Main Droite",
+        left_hand_notes: "Notes de la Main Gauche",
+        right_hand_mistakes: "Erreurs de la Main Droite",
+        left_hand_mistakes: "Erreurs de la Main Gauche",
+        note_timing_vs_delay: "Synchronisation des Notes vs Délai",
+        chart_tooltip_label_delay: "Délai",
+        chart_tooltip_label_at_time: "À",
+        mistakes: "Erreur de Synchronisation",
+        max_acceptaple_delay: "Délai Maximum Autorisé",
+        time: "Temps MIDI (secondes)",
+        delay: "Délai (secondes)",
+        reset_zoom: "Réinitialiser",
+        learning_status: "Commencer l'Apprentissage",
+
+        // score and profiles
+        score: "Résultat",
+        combo: "Combo",
+        multiplier: "Multiplicateur",
+
+        profile_label: "Profil",
+        create_profile: "Créer un profil",
+        show_score: "Afficher le score",
+        show_summary: "Afficher le résumé",
+        highscore: "Meilleur score",
+        new_profile: "nouveau profil"
+
+        
     },
 
     de: {
@@ -1039,6 +1171,12 @@ const translations = {
         led_animation_on_idle: "LED-Animation im Leerlauf",
         after_minutes: "nach Minuten (0 - niemals)",
         animation_type: "Animationsart",
+        idle_timeout: "Leerlauf-Timeout (Minuten)",
+        idle_timeout_tooltip: "Zeit vor dem Eintritt in den IDLE-Zustand zur CPU-Einsparung\nHauptschleife läuft mit 0,9s Verzögerung im IDLE (vs. 0,006s normal)\nMinimum: 1 Minute",
+        screensaver_delay: "Bildschirmschoner-Verzögerung (Minuten)",
+        screensaver_delay_tooltip: "Zeit vor dem Start des Bildschirmschoners\n0 = Bildschirmschoner nie starten\nAktualisiert mit 5Hz im NORMAL, 1Hz im IDLE-Zustand",
+        screen_off_delay: "Bildschirm-Aus-Verzögerung (Minuten)",
+        screen_off_delay_tooltip: "Zeit vor dem Ausschalten des physischen Bildschirms\n0 = Bildschirm nie ausschalten\nUnabhängig vom IDLE-Zustand",
 
         //homepage
         advanced_mode: "Erweiterter Modus",
@@ -1060,6 +1198,14 @@ const translations = {
         playback_port: "Wiedergabe Port",
         cover_state: "Abdeckungszustand",
         screen: "Bildschirm",
+        lcd_type: "LCD-Typ",
+        lcd_type_change_confirm: "Das Ändern des LCD-Typs auf {0} startet den Visualizer neu. Dies kann einen Moment dauern. Fortfahren?",
+        lcd_type_change_success: "LCD-Typ geändert. Der Visualizer startet neu. Die Seite wird in Kürze aktualisiert.",
+        lcd_type_change_error: "LCD-Typ konnte nicht geändert werden: {0}",
+        led_pin: "LED-Pin",
+        led_pin_change_confirm: "Das Ändern des LED-Pins auf {0} startet den Visualizer neu. Dies kann einen Moment dauern. Fortfahren?",
+        led_pin_change_success: "LED-Pin geändert. Der Visualizer startet neu. Die Seite wird in Kürze aktualisiert.",
+        led_pin_change_error: "LED-Pin konnte nicht geändert werden: {0}",
         reset_settings_to_default: "Einstellungen auf Default zurücksetzen",
         confirm: "Bestätigen",
         restart_rpi: "RPi neu starten",
@@ -1079,6 +1225,39 @@ const translations = {
         incorrect_password: "Wenn ein falsches Passwort eingegeben wird, kann es einige Minuten dauern, bis der Hotspot wieder hergestellt ist.",
         if_the_hotspot: "Wenn der Hotspot nach 5 Minuten nicht erscheint, starten Sie bitte das Gerät neu",
         connect: "Verbinden",
+
+
+        session_summary: "Spiels Zusammenfassung",
+        right_hand_mistakes: "Fehler der rechten Hand",
+        right_hand_delay: "Lange Reaktionszeit - Rechte Hand",
+        left_hand_mistakes: "Fehler der linken Hand",
+        left_hand_delay: "Lange Reaktionszeit - Linke Hand",
+        right_hand_notes: "Noten der rechten Hand",
+        left_hand_notes: "Noten der linken Hand",
+        right_hand_mistakes: "Fehler der rechten Hand",
+        left_hand_mistakes: "Fehler der linken Hand",
+        note_timing_vs_delay: "Notensynchronisation vs Verzögerung",
+        chart_tooltip_label_delay: "Verzögerung",
+        chart_tooltip_label_at_time: "Bei",
+        mistakes: "Zeitfehler",
+        max_acceptaple_delay: "Maximale zulässige Verzögerung",
+        time: "MIDI-Zeit (Sekunden)",
+        delay: "Verzögerung (Sekunden)",
+        reset_zoom: "Zurücksetzen",
+        learning_status: "Lernen starten",
+
+        // score and profiles
+        score: "Ergebnis",
+        combo: "Combo",
+        multiplier: "Multiplikator",
+
+        profile_label: "Profil",
+        create_profile: "Profil erstellen",
+        show_score: "Punktzahl anzeigen",
+        show_summary: "Zusammenfassung anzeigen",
+        highscore: "Bestpunktzahl",
+        new_profile: "neues Profil",
+        
     },
 
     es: {
@@ -1295,6 +1474,12 @@ const translations = {
         led_animation_on_idle: "Animación LED en reposo",
         after_minutes: "después de minutos (0 - nunca)",
         animation_type: "Tipo de animación",
+        idle_timeout: "Tiempo de inactividad (minutos)",
+        idle_timeout_tooltip: "Tiempo antes de entrar en estado IDLE para ahorrar CPU\nEl bucle principal se ejecuta con 0,9s de retraso en IDLE (vs 0,006s normalmente)\nMínimo: 1 minuto",
+        screensaver_delay: "Retardo del salvapantallas (minutos)",
+        screensaver_delay_tooltip: "Tiempo antes de que se inicie el salvapantallas\n0 = nunca iniciar salvapantallas\nSe actualiza a 5Hz en NORMAL, 1Hz en estado IDLE",
+        screen_off_delay: "Retardo de apagado de pantalla (minutos)",
+        screen_off_delay_tooltip: "Tiempo antes de que se apague la pantalla física\n0 = nunca apagar la pantalla\nIndependiente del estado IDLE",
 
         //homepage
         advanced_mode: "Modo avanzado",
@@ -1316,6 +1501,14 @@ const translations = {
         playback_port: "Puerto de reproducción",
         cover_state: "Estado de la tapa",
         screen: "Pantalla",
+        lcd_type: "Tipo de LCD",
+        lcd_type_change_confirm: "Cambiar el tipo de LCD a {0} reiniciará el visualizador. Esto puede tardar unos momentos. ¿Continuar?",
+        lcd_type_change_success: "Tipo de LCD cambiado. El visualizador se está reiniciando. La página se actualizará en breve.",
+        lcd_type_change_error: "Error al cambiar el tipo de LCD: {0}",
+        led_pin: "Pin LED",
+        led_pin_change_confirm: "Cambiar el pin LED a {0} reiniciará el visualizador. Esto puede tardar un momento. ¿Continuar?",
+        led_pin_change_success: "Pin LED cambiado. El visualizador se está reiniciando. La página se actualizará en breve.",
+        led_pin_change_error: "Error al cambiar el pin LED: {0}",
         reset_settings_to_default: "Restablecer la configuración a la predeterminada",
         confirm: "Confirmar",
         restart_rpi: "Reiniciar RPi",
@@ -1334,6 +1527,39 @@ const translations = {
         incorrect_password: "Si se introduce una contraseña incorrecta, puede llevar unos minutos restablecer el punto de acceso.",
         if_the_hotspot: "Si el punto de acceso no aparece después de 5 minutos, reinicia el dispositivo, por favor.",
         connect: "Conectar",
+
+
+        session_summary: "Resumen del Juego",
+        right_hand_mistakes: "Errores de la Mano Derecha",
+        right_hand_delay: "Tiempo De Reacción Largo - Mano Derecha",
+        left_hand_mistakes: "Errores de la Mano Izquierda",
+        left_hand_delay: "Tiempo De Reacción Largo - Mano Izquierda",
+        right_hand_notes: "Notas de la Mano Derecha",
+        left_hand_notes: "Notas de la Mano Izquierda",
+        right_hand_mistakes: "Errores de la Mano Derecha",
+        left_hand_mistakes: "Errores de la Mano Izquierda",
+        note_timing_vs_delay: "Sincronización de Notas vs Retraso",
+        chart_tooltip_label_delay: "Retraso",
+        chart_tooltip_label_at_time: "En",
+        mistakes: "Error de Tiempo",
+        max_acceptaple_delay: "Retraso Máximo Permitido",
+        time: "Tiempo MIDI (segundos)",
+        delay: "Retraso (segundos)",
+        reset_zoom: "Restablecer",
+        learning_status: "Iniciar Aprendizaje",
+
+        // score and profiles
+        score: "Resultado",
+        combo: "Combo",
+        multiplier: "Multiplicador",
+
+        profile_label: "Perfil",
+        create_profile: "Crear perfil",
+        show_score: "Mostrar puntuación",
+        show_summary: "Mostrar resumen",
+        highscore: "Puntuación más alta",
+        new_profile: "nuevo perfil",
+        
     },
 
     zh: {
@@ -1550,6 +1776,12 @@ const translations = {
         led_animation_on_idle: "LED闲置动画",
         after_minutes: "几分钟后（0 - 从不）",
         animation_type: "动画类型",
+        idle_timeout: "空闲超时（分钟）",
+        idle_timeout_tooltip: "进入空闲状态以节省CPU的时间\n空闲状态下主循环以0.9秒延迟运行（正常为0.006秒）\n最小值：1分钟",
+        screensaver_delay: "屏幕保护程序延迟（分钟）",
+        screensaver_delay_tooltip: "屏幕保护程序启动前的时间\n0 = 永不启动屏幕保护程序\n正常状态下5Hz刷新，空闲状态下1Hz刷新",
+        screen_off_delay: "屏幕关闭延迟（分钟）",
+        screen_off_delay_tooltip: "物理屏幕关闭前的时间\n0 = 永不关闭屏幕\n独立于空闲状态",
 
         //homepage
         advanced_mode: "高级模式",
@@ -1571,6 +1803,14 @@ const translations = {
         playback_port: "播放端口",
         cover_state: "盖状态",
         screen: "屏幕",
+        lcd_type: "LCD类型",
+        lcd_type_change_confirm: "将LCD类型更改为 {0} 将重启可视化器。这可能需要一些时间。继续吗？",
+        lcd_type_change_success: "LCD类型已更改。可视化器正在重启。页面将很快刷新。",
+        lcd_type_change_error: "更改LCD类型失败: {0}",
+        led_pin: "LED引脚",
+        led_pin_change_confirm: "将LED引脚更改为 {0} 将重启可视化器。这可能需要一些时间。继续吗？",
+        led_pin_change_success: "LED引脚已更改。可视化器正在重启。页面将很快刷新。",
+        led_pin_change_error: "更改LED引脚失败: {0}",
         reset_settings_to_default: "将设置重置为默认",
         confirm: "确认",
         restart_rpi: "重新启动RPi",
@@ -1589,6 +1829,40 @@ const translations = {
         incorrect_password: "如果输入的密码不正确，可能需要几分钟才能重新建立热点。",
         if_the_hotspot: "如果热点在5分钟后仍未出现，请重新启动设备",
         connect: "连接",
+
+
+        session_summary: "游戏总结",
+        right_hand_mistakes: "右手错误",
+        right_hand_delay: "反应时间长 - 右手",
+        left_hand_mistakes: "左手错误",
+        left_hand_delay: "反应时间长 - 左手",
+        right_hand_notes: "右手音符",
+        left_hand_notes: "左手音符",
+        right_hand_mistakes: "右手错误",
+        left_hand_mistakes: "左手错误",
+        note_timing_vs_delay: "音符时序与延迟",
+        chart_tooltip_label_delay: "延迟",
+        chart_tooltip_label_at_time: "在",
+        mistakes: "时间错误",
+        max_acceptaple_delay: "最大允许延迟",
+        time: "MIDI时间（秒）",
+        delay: "延迟（秒）",
+        reset_zoom: "重置",
+        learning_status: "开始学习",
+
+        // score and profiles
+        score: "得分",
+        combo: "连击",
+        multiplier: "倍率",
+
+        profile_label: "个人资料",
+        create_profile: "创建个人资料",
+        show_score: "显示得分",
+        show_summary: "显示总结",
+        highscore: "最高分",
+        new_profile: "新个人资料", 
+
+        
     },
 
     hi: {
@@ -1803,6 +2077,12 @@ const translations = {
         led_animation_on_idle: "आईडल पर एलईडी एनिमेशन",
         after_minutes: "मिनटों के बाद (0 - कभी नहीं)",
         animation_type: "एनिमेशन प्रकार",
+        idle_timeout: "निष्क्रिय समय सीमा (मिनट)",
+        idle_timeout_tooltip: "CPU बचाने के लिए आईडल स्थिति में प्रवेश करने से पहले का समय\nआईडल में मुख्य लूप 0.9s देरी से चलता है (सामान्य रूप से 0.006s)\nन्यूनतम: 1 मिनट",
+        screensaver_delay: "स्क्रीनसेवर विलंब (मिनट)",
+        screensaver_delay_tooltip: "स्क्रीनसेवर शुरू होने से पहले का समय\n0 = कभी भी स्क्रीनसेवर शुरू न करें\nनॉर्मल में 5Hz, आईडल स्थिति में 1Hz पर रिफ्रेश करता है",
+        screen_off_delay: "स्क्रीन बंद विलंब (मिनट)",
+        screen_off_delay_tooltip: "भौतिक स्क्रीन बंद होने से पहले का समय\n0 = कभी भी स्क्रीन बंद न करें\nआईडल स्थिति से स्वतंत्र",
 
         //homepage
         advanced_mode: "उन्नत मोड",
@@ -1824,6 +2104,14 @@ const translations = {
         playback_port: "प्लेबैक पोर्ट",
         cover_state: "कवर स्थिति",
         screen: "स्क्रीन",
+        lcd_type: "LCD प्रकार",
+        lcd_type_change_confirm: "{0} में LCD प्रकार बदलने से विज़ुअलाइज़र पुनरारंभ होगा। इसमें कुछ क्षण लग सकते हैं। जारी रखें?",
+        lcd_type_change_success: "LCD प्रकार बदल दिया गया। विज़ुअलाइज़र पुनरारंभ हो रहा है। पृष्ठ जल्द ही रीफ़्रेश होगा।",
+        lcd_type_change_error: "LCD प्रकार बदलने में विफल: {0}",
+        led_pin: "LED पिन",
+        led_pin_change_confirm: "{0} में LED पिन बदलने से विज़ुअलाइज़र पुनरारंभ होगा। इसमें कुछ क्षण लग सकते हैं। जारी रखें?",
+        led_pin_change_success: "LED पिन बदल दिया गया। विज़ुअलाइज़र पुनरारंभ हो रहा है। पृष्ठ जल्द ही रीफ़्रेश होगा।",
+        led_pin_change_error: "LED पिन बदलने में विफल: {0}",
         reset_settings_to_default: "रीसेट सेटिंग्स डिफ़ॉल्ट ",
         confirm: "पुष्टि करें",
         restart_rpi: "आरपीआई पुनरारंभ करें",
@@ -1842,6 +2130,40 @@ const translations = {
         incorrect_password: "यदि गलत पासवर्ड दर्ज किया जाता है, तो हास्पॉट को फिर से स्थापित करने में कुछ मिनट लग सकते हैं।",
         if_the_hotspot: "यदि हॉटस्पॉट 5 मिनट बाद भी प्रकट नहीं होता है, तो कृपया उपकरण को पुनः आरंभ करें",
         connect: "जुड़ने",
+
+
+
+        session_summary: "गेम सारांश",
+        right_hand_mistakes: "दाहिनी हाथ की गलतियाँ",
+        right_hand_delay: "लंबा प्रतिक्रिया समय - दायां हाथ",
+        left_hand_mistakes: "बाईं हाथ की गलतियाँ",
+        left_hand_delay: "लंबा प्रतिक्रिया समय - बायां हाथ",
+        right_hand_notes: "दाहिनी हाथ की नोट्स",
+        left_hand_notes: "बाईं हाथ की नोट्स",
+        right_hand_mistakes: "दाहिनी हाथ की गलतियाँ",
+        left_hand_mistakes: "बाईं हाथ की गलतियाँ",
+        note_timing_vs_delay: "नोट समय और देरी",
+        chart_tooltip_label_delay: "देरी",
+        chart_tooltip_label_at_time: "पर",
+        mistakes: "समय त्रुटि",
+        max_acceptaple_delay: "अधिकतम अनुमेय देरी",
+        time: "MIDI समय (सेकंड)",
+        delay: "देरी (सेकंड)",
+        reset_zoom: "रीसेट करें",
+        learning_status: "शिक्षा शुरू करें",
+
+        // score and profiles
+        score: "स्कोर",
+        combo: "कॉम्बो",
+        multiplier: "गुणाकार",
+
+        profile_label: "प्रोफ़ाइल",
+        create_profile: "प्रोफ़ाइल बनाएँ",
+        show_score: "स्कोर दिखाएँ",
+        show_summary: "सारांश दिखाएँ",
+        highscore: "उच्चतम स्कोर",
+        new_profile: "नया प्रोफ़ाइल",
+        
     },
 
     pt: {
@@ -2059,6 +2381,12 @@ const translations = {
         led_animation_on_idle: "Animação de LED em ociosidade",
         after_minutes: "depois de minutos (0 - nunca)",
         animation_type: "Tipo de animação",
+        idle_timeout: "Tempo limite de inatividade (minutos)",
+        idle_timeout_tooltip: "Tempo antes de entrar no estado IDLE para economizar CPU\nO loop principal é executado com atraso de 0,9s em IDLE (vs 0,006s normalmente)\nMínimo: 1 minuto",
+        screensaver_delay: "Atraso da proteção de tela (minutos)",
+        screensaver_delay_tooltip: "Tempo antes do início da proteção de tela\n0 = nunca iniciar proteção de tela\nAtualiza a 5Hz em NORMAL, 1Hz em estado IDLE",
+        screen_off_delay: "Atraso de desligamento da tela (minutos)",
+        screen_off_delay_tooltip: "Tempo antes de desligar a tela física\n0 = nunca desligar a tela\nIndependente do estado IDLE",
 
         //homepage
         advanced_mode: "Modo avançado",
@@ -2080,6 +2408,14 @@ const translations = {
         playback_port: "Porta de reprodução",
         cover_state: "Estado da tampa",
         screen: "Tela",
+        lcd_type: "Tipo de LCD",
+        lcd_type_change_confirm: "Alterar o tipo de LCD para {0} reiniciará o visualizador. Isso pode levar alguns momentos. Continuar?",
+        lcd_type_change_success: "Tipo de LCD alterado. O visualizador está reiniciando. A página será atualizada em breve.",
+        lcd_type_change_error: "Falha ao alterar o tipo de LCD: {0}",
+        led_pin: "Pino LED",
+        led_pin_change_confirm: "Alterar o pino LED para {0} reiniciará o visualizador. Isso pode levar um momento. Continuar?",
+        led_pin_change_success: "Pino LED alterado. O visualizador está reiniciando. A página será atualizada em breve.",
+        led_pin_change_error: "Falha ao alterar o pino LED: {0}",
         reset_settings_to_default: "Redefinir configurações para padrão",
         confirm: "Confirmar",
         restart_rpi: "Reiniciar RPi",
@@ -2098,6 +2434,40 @@ const translations = {
         incorrect_password: "Se uma senha incorreta for inserida, pode levar alguns minutos para que o hotspot seja restabelecido.",
         if_the_hotspot: "Se o Hotspot não aparecer após 5 minutos, reinicie o dispositivo",
         connect: "Conectar",
+
+
+        session_summary: "Resumo do Jogo",
+        right_hand_mistakes: "Erros da Mão Direita",
+        right_hand_delay: "Tempo De Reação Longo - Mão Direita",
+        left_hand_mistakes: "Erros da Mão Esquerda",
+        left_hand_delay: "Tempo De Reação Longo - Mão Esquerda",
+        right_hand_notes: "Notas da Mão Direita",
+        left_hand_notes: "Notas da Mão Esquerda",
+        right_hand_mistakes: "Erros da Mão Direita",
+        left_hand_mistakes: "Erros da Mão Esquerda",
+        note_timing_vs_delay: "Sincronização de Notas vs Atraso",
+        chart_tooltip_label_delay: "Atraso",
+        chart_tooltip_label_at_time: "Em",
+        mistakes: "Erro de Tempo",
+        max_acceptaple_delay: "Atraso Máximo Permitido",
+        time: "Tempo MIDI (segundos)",
+        delay: "Atraso (segundos)",
+        reset_zoom: "Reiniciar",
+        learning_status: "Iniciar Aprendizado",
+
+        // score and profiles
+        score: "Pontuação",
+        combo: "Sequência",
+        multiplier: "Multiplicador",
+
+        profile_label: "Perfil",
+        create_profile: "Criar perfil",
+        show_score: "Mostrar pontuação",
+        show_summary: "Mostrar resumo",
+        highscore: "Pontuação mais alta",
+        new_profile: "novo perfil", 
+
+        
     },
 
     ja: {
@@ -2313,6 +2683,12 @@ const translations = {
         led_animation_on_idle: "IDLE状態でのLEDアニメーション",
         after_minutes: "経過後（0＝なし）",
         animation_type: "アニメーションの種類",
+        idle_timeout: "アイドルタイムアウト（分）",
+        idle_timeout_tooltip: "CPU節約のためIDLE状態に入るまでの時間\nIDLE時のメインループは0.9秒遅延で実行（通常0.006秒）\n最小値：1分",
+        screensaver_delay: "スクリーンセーバー遅延（分）",
+        screensaver_delay_tooltip: "スクリーンセーバーが起動するまでの時間\n0 = スクリーンセーバーを起動しない\nNORMAL時5Hz、IDLE状態時1Hzでリフレッシュ",
+        screen_off_delay: "画面オフ遅延（分）",
+        screen_off_delay_tooltip: "物理画面がオフになるまでの時間\n0 = 画面をオフにしない\nIDLE状態とは独立",
 
         //homepage
         advanced_mode: "アドバンストモード",
@@ -2334,6 +2710,14 @@ const translations = {
         playback_port: "再生ポート",
         cover_state: "カバーステート",
         screen: "スクリーン",
+        lcd_type: "LCDタイプ",
+        lcd_type_change_confirm: "LCDタイプを {0} に変更すると、ビジュアライザーが再起動します。これには数分かかる場合があります。続行しますか？",
+        lcd_type_change_success: "LCDタイプが変更されました。ビジュアライザーが再起動しています。ページはすぐに更新されます。",
+        lcd_type_change_error: "LCDタイプの変更に失敗しました: {0}",
+        led_pin: "LEDピン",
+        led_pin_change_confirm: "LEDピンを {0} に変更すると、ビジュアライザーが再起動します。これには少し時間がかかる場合があります。続行しますか？",
+        led_pin_change_success: "LEDピンが変更されました。ビジュアライザーが再起動しています。ページはすぐに更新されます。",
+        led_pin_change_error: "LEDピンの変更に失敗しました: {0}",
         reset_settings_to_default: "設定をデフォルトにリセット",
         confirm: "確認",
         restart_rpi: "RPiの再起動",
@@ -2352,6 +2736,39 @@ const translations = {
         incorrect_password: "パスワードが間違っている場合、ホットスポットが再設定されるまでに数分かかることがあります。",
         if_the_hotspot: "ホットスポットが5分後に表示されない場合は、デバイスを再起動してください",
         connect: "接続",
+
+        session_summary: "ゲームの概要",
+        right_hand_mistakes: "右手のミス",
+        right_hand_delay: "反応時間が長い - 右手",
+        left_hand_mistakes: "左手のミス",
+        left_hand_delay: "反応時間が長い - 左手",
+        right_hand_notes: "右手のノート",
+        left_hand_notes: "左手のノート",
+        right_hand_mistakes: "右手のエラー",
+        left_hand_mistakes: "左手のエラー",
+        note_timing_vs_delay: "ノートのタイミングと遅延",
+        chart_tooltip_label_delay: "遅延",
+        chart_tooltip_label_at_time: "時点で",
+        mistakes: "タイミングミス",
+        max_acceptaple_delay: "最大許容遅延",
+        time: "MIDI時間（秒）",
+        delay: "遅延（秒）",
+        reset_zoom: "リセット",
+        learning_status: "学習を開始",
+
+
+        // score and profiles
+        score: "スコア",
+        combo: "コンボ",
+        multiplier: "倍率",
+
+        profile_label: "プロフィール",
+        create_profile: "プロフィールを作成",
+        show_score: "スコアを表示",
+        show_summary: "概要を表示",
+        highscore: "ハイスコア",
+        new_profile: "新しいプロフィール",
+        
     },
 
     ko: {
@@ -2567,6 +2984,12 @@ const translations = {
     led_animation_on_idle: "대기 중 LED 애니메이션",
     after_minutes: "몇 분 후 (0 - 사용안함)",
     animation_type: "애니메이션 유형",
+    idle_timeout: "유휴 시간 초과 (분)",
+    idle_timeout_tooltip: "CPU 절약을 위해 유휴 상태로 전환되기 전 시간\n유휴 상태에서 메인 루프는 0.9초 지연으로 실행 (일반적으로 0.006초)\n최소: 1분",
+    screensaver_delay: "화면 보호기 지연 (분)",
+    screensaver_delay_tooltip: "화면 보호기가 시작되기 전 시간\n0 = 화면 보호기 시작 안 함\n일반 상태에서 5Hz, 유휴 상태에서 1Hz로 새로고침",
+    screen_off_delay: "화면 끄기 지연 (분)",
+    screen_off_delay_tooltip: "물리적 화면이 꺼지기 전 시간\n0 = 화면 끄지 않음\n유휴 상태와 독립적",
 
     //homepage
     advanced_mode: "고급 모드",
@@ -2588,6 +3011,14 @@ const translations = {
     playback_port: "재생 포트",
     cover_state: "커버 상태",
     screen: "화면",
+    lcd_type: "LCD 유형",
+    lcd_type_change_confirm: "LCD 유형을 {0}로 변경하면 시각화 도구가 재시작됩니다. 몇 분 걸릴 수 있습니다. 계속하시겠습니까?",
+    lcd_type_change_success: "LCD 유형이 변경되었습니다. 시각화 도구가 재시작 중입니다. 페이지가 곧 새로고침됩니다.",
+    lcd_type_change_error: "LCD 유형 변경 실패: {0}",
+    led_pin: "LED 핀",
+    led_pin_change_confirm: "LED 핀을 {0}로 변경하면 시각화 도구가 재시작됩니다. 잠시 걸릴 수 있습니다. 계속하시겠습니까?",
+    led_pin_change_success: "LED 핀이 변경되었습니다. 시각화 도구가 재시작 중입니다. 페이지가 곧 새로고침됩니다.",
+    led_pin_change_error: "LED 핀 변경 실패: {0}",
     reset_settings_to_default: "기본 설정으로 초기화",
     confirm: "확인",
     restart_rpi: "RPi 재시작",
@@ -2606,6 +3037,39 @@ const translations = {
     incorrect_password: "잘못된 비밀번호를 입력한 경우 핫스팟이 다시 설정되는 데 몇 분이 걸릴 수 있습니다.",
     if_the_hotspot: "5분 후에도 핫스팟이 나타나지 않으면 기기를 재시작하세요",
     connect: "연결",
+
+    
+    session_summary: "게임 요약",
+    right_hand_mistakes: "오른손 실수",
+    right_hand_delay: "긴 반응 시간 - 오른손",
+    left_hand_mistakes: "왼손 실수",
+    left_hand_delay: "긴 반응 시간 - 왼손",
+    right_hand_notes: "오른손 음표",
+    left_hand_notes: "왼손 음표",
+    right_hand_mistakes: "오른손 오류",
+    left_hand_mistakes: "왼손 오류",
+    note_timing_vs_delay: "음표 타이밍 vs 지연",
+    chart_tooltip_label_delay: "지연",
+    chart_tooltip_label_at_time: "에서",
+    mistakes: "타이밍 오류",
+    max_acceptaple_delay: "최대 허용 지연",
+    time: "MIDI 시간 (초)",
+    delay: "지연 (초)",
+    reset_zoom: "리셋",
+    learning_status: "학습 시작",
+
+    // Score and profiles
+    score: "점수",
+    combo: "콤보",
+    multiplier: "배수",
+
+    profile_label: "프로필",
+    create_profile: "프로필 만들기",
+    show_score: "점수 표시",
+    show_summary: "요약 표시",
+    highscore: "최고 점수",
+    new_profile: "새 프로필",
+        
 },
 he: {
     //index
@@ -2691,7 +3155,6 @@ he: {
     or_click_to_choose: "או לחץ לבחירה",
     play_on_piano: "נגן על הפסנתר",
     stop: "עצור",
-    learning_status: "התחל למידה",
     stop_learning: "עצור למידה",
     loop: "לולאה",
     practice: "תרגול",
@@ -2804,6 +3267,12 @@ he: {
     led_animation_on_idle: "אנימציית לד במצב מנוחה",
     after_minutes: "לאחר דקות",
     animation_type: "סוג אנימציה",
+    idle_timeout: "פסק זמן במצב מנוחה (דקות)",
+    idle_timeout_tooltip: "זמן לפני כניסה למצב IDLE לחיסכון בCPU\nהלולאה הראשית רצה עם עיכוב של 0.9 שניות ב-IDLE (לעומת 0.006 שניות בדרך כלל)\nמינימום: דקה אחת",
+    screensaver_delay: "עיכוב שומר מסך (דקות)",
+    screensaver_delay_tooltip: "זמן לפני הפעלת שומר המסך\n0 = אל תפעיל שומר מסך לעולם\nמתרענן ב-5Hz במצב NORMAL, 1Hz במצב IDLE",
+    screen_off_delay: "עיכוב כיבוי מסך (דקות)",
+    screen_off_delay_tooltip: "זמן לפני כיבוי המסך הפיזי\n0 = אל תכבה את המסך לעולם\nבלתי תלוי במצב IDLE",
 
     //homepage
     advanced_mode: "מצב מתקדם",
@@ -2825,6 +3294,10 @@ he: {
     playback_port: "פורט נגינה",
     cover_state: "מצב כיסוי",
     screen: "מסך",
+    lcd_type: "סוג LCD",
+    lcd_type_change_confirm: "שינוי סוג LCD ל-{0} יאתחל מחדש את הוויזואליזציה. זה עשוי לקחת כמה רגעים. להמשיך?",
+    lcd_type_change_success: "סוג LCD שונה. הוויזואליזציה מתחילה מחדש. הדף יתרענן בקרוב.",
+    lcd_type_change_error: "שינוי סוג LCD נכשל: {0}",
     reset_settings_to_default: "איפוס הגדרות לברירת מחדל",
     confirm: "אישור",
     restart_rpi: "הפעל מחדש את RPi",
@@ -2846,11 +3319,11 @@ he: {
 
     
     //Summary
-    session_summary: "סיכום משחק",
+    session_summary: "סיכום ביצוע",
     right_hand_mistakes: "טעויות יד ימין",
-    right_hand_delay: "זמן תגובה לתו - יד ימין",
+    right_hand_delay: "זמן תגובה ארוך - יד ימין",
     left_hand_mistakes: "טעויות יד שמאל",
-    left_hand_delay: " זמן תגובה  לתו - יד שמאל",
+    left_hand_delay: "זמן תגובה ארוך - יד שמאל",
     right_hand_notes: "תווים ביד ימין",
     left_hand_notes: "תווים ביד שמאל",
     right_hand_mistakes: "שגיאות ביד ימין",
@@ -2865,11 +3338,17 @@ he: {
     reset_zoom:"איפוס",
     learning_status: "התחל למידה",
 
-    //score
+    // Score and profiles
     score: "ניקוד",
     combo: "רצף",
     multiplier: "מכפלה",
 
+    profile_label: "פרופיל",
+    create_profile: "צור פרופיל",
+    show_score: "הצג ניקוד",
+    show_summary: "הצג סיכום",
+    highscore: "שיא",
+    new_profile: "פרופיל חדש",
     
 },
 ar:{
@@ -3069,6 +3548,12 @@ ar:{
     led_animation_on_idle: "حركة الليد وقت الخمول",
     after_minutes: "بعد كام دقيقة (0 = أبداً)",
     animation_type: "نوع الحركة",
+    idle_timeout: "مهلة الخمول (دقائق)",
+    idle_timeout_tooltip: "الوقت قبل دخول حالة الخمول لتوفير المعالج\nالحلقة الرئيسية تعمل بتأخير 0.9 ثانية في الخمول (مقابل 0.006 ثانية عادةً)\nالحد الأدنى: دقيقة واحدة",
+    screensaver_delay: "تأخير شاشة التوقف (دقائق)",
+    screensaver_delay_tooltip: "الوقت قبل بدء شاشة التوقف\n0 = عدم بدء شاشة التوقف أبدًا\nتحديث بمعدل 5Hz في الوضع العادي، 1Hz في حالة الخمول",
+    screen_off_delay: "تأخير إيقاف الشاشة (دقائق)",
+    screen_off_delay_tooltip: "الوقت قبل إيقاف الشاشة الفعلية\n0 = عدم إيقاف الشاشة أبدًا\nمستقل عن حالة الخمول",
 
     // homepage
     advanced_mode: "الوضع المتقدم",
@@ -3090,6 +3575,10 @@ ar:{
     playback_port: "منفذ التشغيل",
     cover_state: "حالة الغطاء",
     screen: "الشاشة",
+    lcd_type: "نوع LCD",
+    lcd_type_change_confirm: "تغيير نوع LCD إلى {0} سيعيد تشغيل العارض. قد يستغرق هذا بضع لحظات. متابعة؟",
+    lcd_type_change_success: "تم تغيير نوع LCD. العارض يعيد التشغيل. سيتم تحديث الصفحة قريباً.",
+    lcd_type_change_error: "فشل تغيير نوع LCD: {0}",
     reset_settings_to_default: "إرجاع الإعدادات للوضع الإفتراضي",
     confirm: "تأكيد",
     restart_rpi: "إعادة تشغيل RPi",
@@ -3110,9 +3599,9 @@ ar:{
     connect: "اتصل",
     session_summary: "ملخص الجلسة",
     right_hand_mistakes: "أخطاء اليد اليمين",
-    right_hand_delay: "زمن الاستجابة - اليد اليمين",
+    right_hand_delay: "وقت استجابة طويل - اليد اليمنى",
     left_hand_mistakes: "أخطاء اليد الشمال",
-    left_hand_delay: "زمن الاستجابة - اليد الشمال",
+    left_hand_delay: "وقت استجابة طويل - اليد اليسرى",
     right_hand_notes: "نغمات اليد اليمين",
     left_hand_notes: "نغمات اليد الشمال",
     note_timing_vs_delay: "توقيت النغمات مقابل التأخير",
@@ -3125,8 +3614,16 @@ ar:{
     reset_zoom: "إعادة الضبط",
     learning_status: "ابدأ التعلم",
 
+    // score and profiles
     score: "النتيجة",
     combo: "سلسلة",
-    multiplier: "مضاعف"
-}
+    multiplier: "مضاعف",
+
+    profile_label: "الملف الشخصي",
+    create_profile: "إنشاء ملف شخصي",
+    show_score: "عرض النتيجة",
+    show_summary: "عرض الملخص",
+    highscore: "أعلى نتيجة",
+    new_profile: "ملف شخصي جديد"
+},
 };

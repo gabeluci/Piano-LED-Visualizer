@@ -20,6 +20,7 @@ import ast
 import re
 from lib.rpi_drivers import GPIO
 from lib.log_setup import logger
+from flask import abort
 
 SENSECOVER = 12
 GPIO.setmode(GPIO.BCM)
@@ -141,7 +142,10 @@ def get_homepage_data():
         'card_space_percent': card_space.percent,
         'cover_state': 'Opened' if cover_opened else 'Closed',
         'led_fps': round(app_state.ledstrip.current_fps, 2),
+        'system_state': app_state.state_manager.current_state.value.upper() if app_state.state_manager else 'UNKNOWN',
         'screen_on': app_state.menu.screen_on,
+        'display_type': app_state.menu.args.display if app_state.menu and app_state.menu.args and app_state.menu.args.display else app_state.usersettings.get_setting_value("display_type") or '1in44',
+        'led_pin': app_state.usersettings.get_setting_value("led_pin") or '18',
     }
     return jsonify(homepage_data)
 
@@ -959,6 +963,42 @@ def change_setting():
         else:
             app_state.menu.enable_screen()
 
+    if setting_name == "display_type":
+        # Validate the value
+        if value in ['1in44', '1in3']:
+            app_state.usersettings.change_setting_value("display_type", value)
+            # Restart visualizer to apply the LCD type change
+            app_state.platform.restart_visualizer()
+            return jsonify(success=True, restart_required=True, message="LCD type changed. Restarting visualizer...")
+        else:
+            return jsonify(success=False, error="Invalid display type")
+
+    if setting_name == "led_pin":
+        # Validate the pin value
+        valid_pins = ['12', '13', '18', '19', '41', '45', '53']
+        pin_value = str(value)
+        if pin_value not in valid_pins:
+            return jsonify(success=False, error="Invalid LED pin. Valid pins are: " + ", ".join(valid_pins))
+        
+        # Auto-determine channel based on pin
+        # Channel 0: pins 12, 18
+        # Channel 1: pins 13, 19, 41, 45, 53
+        pin_int = int(pin_value)
+        if pin_int in [12, 18]:
+            channel_value = 0
+        elif pin_int in [13, 19, 41, 45, 53]:
+            channel_value = 1
+        else:
+            return jsonify(success=False, error="Invalid LED pin")
+        
+        # Save both pin and channel settings
+        app_state.usersettings.change_setting_value("led_pin", pin_value)
+        app_state.usersettings.change_setting_value("led_channel", channel_value)
+        
+        # Restart visualizer to apply the LED pin change
+        app_state.platform.restart_visualizer()
+        return jsonify(success=True, restart_required=True, message="LED pin changed. Restarting visualizer...")
+
     if setting_name == "reset_to_default":
         app_state.usersettings.reset_to_default()
 
@@ -1302,6 +1342,33 @@ def change_setting():
         if app_state.menu.led_animation_delay < 0:
             app_state.menu.led_animation_delay = 0
         app_state.usersettings.change_setting_value("led_animation_delay", app_state.menu.led_animation_delay)
+        return jsonify(success=True)
+
+    if setting_name == "idle_timeout_minutes":
+        value = max(int(value), 1)
+        app_state.menu.idle_timeout_minutes = value
+        app_state.usersettings.change_setting_value("idle_timeout_minutes", app_state.menu.idle_timeout_minutes)
+        # Reload state manager config
+        if app_state.state_manager:
+            app_state.state_manager.reload_config()
+        return jsonify(success=True)
+
+    if setting_name == "screensaver_delay":
+        value = max(int(value), 0)
+        app_state.menu.screensaver_delay = value
+        app_state.usersettings.change_setting_value("screensaver_delay", app_state.menu.screensaver_delay)
+        # Reload state manager config
+        if app_state.state_manager:
+            app_state.state_manager.reload_config()
+        return jsonify(success=True)
+
+    if setting_name == "screen_off_delay":
+        value = max(int(value), 0)
+        app_state.menu.screen_off_delay = value
+        app_state.usersettings.change_setting_value("screen_off_delay", app_state.menu.screen_off_delay)
+        # Reload state manager config
+        if app_state.state_manager:
+            app_state.state_manager.reload_config()
 
         return jsonify(success=True)
 
@@ -1421,7 +1488,10 @@ def get_sequence_setting():
 def get_idle_animation_settings():
     response = {"led_animation_delay": app_state.usersettings.get_setting_value("led_animation_delay"),
                 "led_animation": app_state.usersettings.get_setting_value("led_animation"),
-                "led_animation_brightness_percent": app_state.ledsettings.led_animation_brightness_percent}
+                "led_animation_brightness_percent": app_state.ledsettings.led_animation_brightness_percent,
+                "idle_timeout_minutes": app_state.usersettings.get_setting_value("idle_timeout_minutes"),
+                "screensaver_delay": app_state.usersettings.get_setting_value("screensaver_delay"),
+                "screen_off_delay": app_state.usersettings.get_setting_value("screen_off_delay")}
     return jsonify(response)
 
 @webinterface.route('/api/get_settings', methods=['GET'])
@@ -1761,6 +1831,77 @@ def get_logs():
 def get_colormap_gradients():
     return jsonify(cmap.colormaps_preview)
 
+# ---------------------- Profiles & Highscores API ----------------------
+@webinterface.route('/api/get_profiles', methods=['GET'])
+def api_get_profiles():
+    if not hasattr(app_state, 'profile_manager'):
+        return jsonify({"profiles": []})
+    profiles = app_state.profile_manager.get_profiles()
+    return jsonify({"profiles": profiles})
+
+@webinterface.route('/api/create_profile', methods=['POST'])
+def api_create_profile():
+    if not hasattr(app_state, 'profile_manager'):
+        abort(500, description="Profile manager not initialized")
+    data = request.get_json(silent=True) or {}
+    name = data.get('name', '').strip()
+    if not name:
+        return jsonify(success=False, error="Name required"), 400
+    try:
+        profile_id = app_state.profile_manager.create_profile(name)
+    except ValueError as ve:
+        return jsonify(success=False, error=str(ve)), 400
+    except Exception as e:
+        logger.warning(f"Failed creating profile: {e}")
+        return jsonify(success=False, error="Internal error"), 500
+    return jsonify(success=True, profile={"id": profile_id, "name": name})
+
+@webinterface.route('/api/delete_profile', methods=['POST'])
+def api_delete_profile():
+    if not hasattr(app_state, 'profile_manager'):
+        abort(500, description="Profile manager not initialized")
+    data = request.get_json(silent=True) or {}
+    try:
+        profile_id = int(data.get('profile_id'))
+    except (TypeError, ValueError):
+        return jsonify(success=False, error="profile_id must be integer"), 400
+    try:
+        app_state.profile_manager.delete_profile(profile_id)
+        # If the deleted profile was the current one, clear it
+        if getattr(app_state, 'current_profile_id', None) == profile_id:
+            app_state.current_profile_id = None
+        return jsonify(success=True)
+    except Exception as e:
+        logger.warning(f"Failed deleting profile {profile_id}: {e}")
+        return jsonify(success=False, error="Internal error"), 500
+
+@webinterface.route('/api/get_highscores', methods=['GET'])
+def api_get_highscores():
+    if not hasattr(app_state, 'profile_manager'):
+        abort(500, description="Profile manager not initialized")
+    profile_id = request.args.get('profile_id')
+    if not profile_id:
+        return jsonify(success=False, error="profile_id required"), 400
+    try:
+        profile_id = int(profile_id)
+    except ValueError:
+        return jsonify(success=False, error="profile_id must be integer"), 400
+    highscores = app_state.profile_manager.get_highscores(profile_id)
+    return jsonify(success=True, highscores=highscores)
+
+@webinterface.route('/api/update_highscore', methods=['POST'])
+def api_update_highscore():
+    if not hasattr(app_state, 'profile_manager'):
+        abort(500, description="Profile manager not initialized")
+    data = request.get_json(silent=True) or {}
+    try:
+        profile_id = int(data.get('profile_id'))
+        song_name = data.get('song_name', '')
+        new_score = int(data.get('score'))
+    except (TypeError, ValueError):
+        return jsonify(success=False, error="Invalid payload"), 400
+    changed = app_state.profile_manager.update_highscore(profile_id, song_name, new_score)
+    return jsonify(success=True, updated=changed)
 
 # ========== Port Manager Helper Functions ==========
 
@@ -1976,3 +2117,18 @@ def pretty_print(dom):
 def pretty_save(file_path, sequences_tree):
     with open(file_path, "w", encoding="utf8") as outfile:
         outfile.write(pretty_print(sequences_tree))
+
+# Track currently selected profile on the backend for use by learning logic
+@webinterface.route('/api/set_current_profile', methods=['POST'])
+def api_set_current_profile():
+    data = request.get_json(silent=True) or {}
+    pid = data.get('profile_id')
+    try:
+        app_state.current_profile_id = int(pid) if pid is not None and pid != '' else None
+    except (TypeError, ValueError):
+        return jsonify(success=False, error="profile_id must be integer or empty"), 400
+    return jsonify(success=True, profile_id=app_state.current_profile_id)
+
+@webinterface.route('/api/get_current_profile', methods=['GET'])
+def api_get_current_profile():
+    return jsonify(success=True, profile_id=app_state.current_profile_id)
