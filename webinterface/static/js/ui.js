@@ -1,5 +1,53 @@
 get_colormap_gradients();
 
+// Homepage history tracking for charts
+window.homepageHistory = {
+    cpu: [],
+    ledFps: [],
+    maxPoints: 60
+};
+
+function addToHistory(type, value) {
+    if (!window.homepageHistory[type]) {
+        window.homepageHistory[type] = [];
+    }
+    window.homepageHistory[type].push(value);
+    if (window.homepageHistory[type].length > window.homepageHistory.maxPoints) {
+        window.homepageHistory[type].shift();
+    }
+}
+
+function updateChart(chartId, value) {
+    let chart;
+    if (chartId === 'cpu') {
+        chart = window.cpuChart;
+    } else if (chartId === 'ledFps') {
+        chart = window.ledFpsChart;
+    }
+    
+    if (chart) {
+        chart.data.labels.push('');
+        chart.data.datasets[0].data.push(value);
+        if (chart.data.labels.length > window.homepageHistory.maxPoints) {
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.shift();
+        }
+        
+        // For LED FPS chart, set max to 2x the displayed average (so average appears at 50% height)
+        if (chartId === 'ledFps' && chart.data.datasets[0].data.length > 0) {
+            const data = chart.data.datasets[0].data;
+            const sum = data.reduce((a, b) => a + b, 0);
+            const average = sum / data.length;
+            const maxValue = average * 2; // 2x average so it appears at 50% height
+            
+            // Ensure minimum max value to avoid issues with very low values
+            chart.options.scales.y.max = Math.max(maxValue, value * 1.5);
+        }
+        
+        chart.update('none');
+    }
+}
+
 function remove_page_indicators() {
     document.getElementById("home").classList.remove("glass-light");
     document.getElementById("ledsettings").classList.remove("glass-light");
@@ -26,38 +74,101 @@ function get_homepage_data_loop() {
                 download = 0;
                 upload = 0;
             }
-            animateValue(document.getElementById("cpu_number"), last_cpu_usage,
-                response_pc_stats["cpu_usage"], refresh_rate * 500, false);
-            document.getElementById("memory_usage_percent").innerHTML = response_pc_stats["memory_usage_percent"] + "%";
-            document.getElementById("memory_usage").innerHTML =
+            const cpuUsage = response_pc_stats["cpu_usage"];
+            const ledFps = parseFloat(response_pc_stats.led_fps) || 0;
+            
+            // Update CPU usage
+            const cpuNumberEl = document.getElementById("cpu_number");
+            if (cpuNumberEl) {
+                animateValue(cpuNumberEl, last_cpu_usage, cpuUsage, refresh_rate * 500, false);
+            }
+            
+            // Add to history and update chart
+            addToHistory('cpu', cpuUsage);
+            updateChart('cpu', cpuUsage);
+            
+            const memoryUsagePercentEl = document.getElementById("memory_usage_percent");
+            if (memoryUsagePercentEl) {
+                memoryUsagePercentEl.innerHTML = response_pc_stats["memory_usage_percent"] + "%";
+            }
+            const memoryUsageEl = document.getElementById("memory_usage");
+            if (memoryUsageEl) {
+                memoryUsageEl.innerHTML =
+                    formatBytes(response_pc_stats["memory_usage_used"], 2, false) + "/" +
+                    formatBytes(response_pc_stats["memory_usage_total"]);
+            }
+            const cpuTempEl = document.getElementById("cpu_temp");
+            if (cpuTempEl) {
+                cpuTempEl.innerHTML = response_pc_stats["cpu_temp"];
+            }
 
-                formatBytes(response_pc_stats["memory_usage_used"], 2, false) + "/" +
-                formatBytes(response_pc_stats["memory_usage_total"]);
-            document.getElementById("cpu_temp").innerHTML = response_pc_stats["cpu_temp"];
+            const cardUsageEl = document.getElementById("card_usage");
+            if (cardUsageEl) {
+                cardUsageEl.innerHTML =
+                    formatBytes(response_pc_stats["card_space_used"], 2, false) + "/" +
+                    formatBytes(response_pc_stats["card_space_total"]);
+            }
+            const cardUsagePercentEl = document.getElementById("card_usage_percent");
+            if (cardUsagePercentEl) {
+                cardUsagePercentEl.innerHTML = response_pc_stats["card_space_percent"] + "%";
+            }
+            const downloadNumberEl = document.getElementById("download_number");
+            if (downloadNumberEl) {
+                animateValue(downloadNumberEl, last_download, download, refresh_rate * 500, true);
+            }
+            const uploadNumberEl = document.getElementById("upload_number");
+            if (uploadNumberEl) {
+                animateValue(uploadNumberEl, last_upload, upload, refresh_rate * 500, true);
+            }
 
-            document.getElementById("card_usage").innerHTML =
-                formatBytes(response_pc_stats["card_space_used"], 2, false) + "/" +
-                formatBytes(response_pc_stats["card_space_total"]);
-            document.getElementById("card_usage_percent").innerHTML = response_pc_stats["card_space_percent"] + "%";
-            animateValue(document.getElementById("download_number"), last_download, download, refresh_rate * 500, true);
-            animateValue(document.getElementById("upload_number"), last_upload, upload, refresh_rate * 500, true);
-
-            document.getElementById("cover_state").innerHTML = response_pc_stats["cover_state"];
-
-            document.getElementById("led_fps").innerHTML = response_pc_stats.led_fps;
+            // Update LED FPS
+            const ledFpsEl = document.getElementById("led_fps");
+            if (ledFpsEl) {
+                ledFpsEl.innerHTML = response_pc_stats.led_fps;
+            }
+            addToHistory('ledFps', ledFps);
+            updateChart('ledFps', ledFps);
+            
             if (document.getElementById("system_state")) {
                 document.getElementById("system_state").innerHTML = response_pc_stats.system_state || 'UNKNOWN';
             }
-            document.getElementById("cpu_count").innerHTML = response_pc_stats.cpu_count;
-            document.getElementById("cpu_pid").innerHTML = response_pc_stats.cpu_pid;
-            document.getElementById("cpu_freq").innerHTML = response_pc_stats.cpu_freq;
-            document.getElementById("memory_pid").innerHTML =
-                formatBytes(response_pc_stats.memory_pid, 2, false);
+            const cpuCountEl = document.getElementById("cpu_count");
+            if (cpuCountEl) {
+                cpuCountEl.innerHTML = response_pc_stats.cpu_count;
+            }
+            const cpuPidEl = document.getElementById("cpu_pid");
+            if (cpuPidEl) {
+                cpuPidEl.innerHTML = response_pc_stats.cpu_pid;
+            }
+            const cpuFreqEl = document.getElementById("cpu_freq");
+            if (cpuFreqEl) {
+                cpuFreqEl.innerHTML = response_pc_stats.cpu_freq;
+            }
+            const memoryPidEl = document.getElementById("memory_pid");
+            if (memoryPidEl) {
+                memoryPidEl.innerHTML = formatBytes(response_pc_stats.memory_pid, 2, false);
+            }
 
-            document.getElementById("cover_state").innerHTML = response_pc_stats.cover_state;
+            // Update cover state with badge styling
+            const coverState = response_pc_stats.cover_state;
+            const coverStateElement = document.getElementById("cover_state");
+            const coverStateBadge = document.getElementById("cover_state_badge");
+            if (coverStateElement) {
+                coverStateElement.innerHTML = coverState;
+            }
+            if (coverStateBadge) {
+                if (coverState === 'Opened') {
+                    coverStateBadge.className = "inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-200 dark:bg-green-700 text-green-800 dark:text-white";
+                } else {
+                    coverStateBadge.className = "inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white";
+                }
+            }
 
             // change value of select based on response_pc_stats.screen_on
-            document.getElementById("screen_on").value = response_pc_stats.screen_on;
+            const screenOnEl = document.getElementById("screen_on");
+            if (screenOnEl) {
+                screenOnEl.value = response_pc_stats.screen_on;
+            }
 
             // change value of select based on response_pc_stats.display_type
             if (response_pc_stats.display_type) {
@@ -79,7 +190,7 @@ function get_homepage_data_loop() {
                 }
             }
 
-            document.getElementById("cover_state").innerHTML = response_pc_stats.cover_state;
+            // cover_state is already handled above with null check
 
 
             download_start = response_pc_stats.download;
@@ -735,8 +846,20 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
             if (response["color_mode"] === "Rainbow") {
                 const now = Date.now();
                 let rainbow_example = '';
-                rainbow_example += '<div class="flex overflow-hidden mt-2">';
-                rainbow_example += '<canvas id="RainbowPreview" style="width: 100%; height: 50px;"></canvas></div>';
+                rainbow_example += '<svg width="100%" height="45px">';
+                rainbow_example += '<defs>';
+                rainbow_example += '<linearGradient id="rainbowGradient">';
+                // Gradient stops will be added dynamically
+                rainbow_example += '</linearGradient>';
+                rainbow_example += '<linearGradient id="rainbowGradientOverlay" x1=".5" x2=".5" y2="1">';
+                rainbow_example += '<stop stop-color="#000" stop-opacity="0"/>';
+                rainbow_example += '<stop offset=".59" stop-color="#000" stop-opacity=".34217436974789917"/>';
+                rainbow_example += '<stop offset="1" stop-color="#000"/>';
+                rainbow_example += '</linearGradient>';
+                rainbow_example += '</defs>';
+                rainbow_example += '<rect width="100%" height="45px" fill="url(#rainbowGradient)"/>';
+                rainbow_example += '<rect width="100%" height="45px" fill="url(#rainbowGradientOverlay)"/>';
+                rainbow_example += '</svg>';
                 rainbow_example += '<img class="w-full opacity-50" style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
                 rainbow_example += '<p class="text-xs italic text-right text-gray-600 dark:text-gray-400">*approximate look</p>';
                 document.getElementById("current_led_color").innerHTML = rainbow_example;
@@ -744,43 +867,51 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 window.cancelAnimationFrame(rainbow_animation);
                 let count = -1;
                 function update_rainbowctx() {
-                    const canvas = document.getElementById('RainbowPreview');
-                    if (!canvas)
+                    const svg = document.getElementById("current_led_color")?.querySelector("svg");
+                    const gradient = svg?.querySelector("#rainbowGradient");
+                    if (!gradient)
                         return;
 
                     count++;
                     if (count % 2 === 0) { // 60fps from window.requestAnimationFrame may be excessive...
-                        const width = canvas.clientWidth;
-                        const height = canvas.clientHeight;
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext("2d");
-                        //ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        const grd = ctx.createLinearGradient(0, 0, width, 0);
-                        const cmap = gradients[response.rainbow_colormap] ?? [];
+                        const rainbow_colormap = document.getElementById("rainbow_colormap")?.value ?? response.rainbow_colormap;
+                        if (!gradients || !gradients[rainbow_colormap]) {
+                            return;
+                        }
+                        const cmap = gradients[rainbow_colormap] ?? [];
 
-                        const led_count = +(config_settings["led_count"] ?? 176);
-                        const reverse = (+config_settings["led_reverse"] === 1 ? -1 : 1);
+                        // Use config_settings if available, otherwise fallback to response or defaults
+                        const settings = config_settings || response || {};
+                        const led_count = +(settings["led_count"] ?? 176);
+                        const reverse = (+(settings["led_reverse"] ?? 0) === 1 ? -1 : 1);
                         const reverse_offset = (reverse === -1 ? led_count : 0);
-                        const density = +(config_settings["leds_per_meter"] ?? 144) / 72;
+                        const density = +(settings["leds_per_meter"] ?? 144) / 72;
+
+                        const rainbow_offset = Number(document.getElementById("rainbow_offset")?.value ?? response["rainbow_offset"]);
+                        const rainbow_scale = Number(document.getElementById("rainbow_scale")?.value ?? response["rainbow_scale"]);
+                        const rainbow_timeshift = Number(document.getElementById("rainbow_timeshift")?.value ?? response.rainbow_timeshift);
 
                         const curtime = Date.now();
+                        
+                        // Clear existing stops
+                        gradient.innerHTML = '';
+                        
                         for (let i=0; i<=88; i+=2) {   // i+=2: it's a preview gradient, 44 gradient stops should be fine
-                            const shift = ((curtime - now) * response.rainbow_timeshift) / 1000;
+                            const shift = ((curtime - now) * rainbow_timeshift) / 1000;
 
                             // Approximate get_note_position
                             const note_position = ~~(reverse * i * density + reverse_offset)
-                            const rainbow_value = ~~((note_position + response["rainbow_offset"] + shift) *
-                                    (response["rainbow_scale"] / 100)) & 255;
-                            x = (rainbow_value/255) * (cmap.length - 1);
-                            grd.addColorStop(i/88, rgbToHexA(cmap[~~x]));
+                            const rainbow_value = ~~((note_position + rainbow_offset + shift) *
+                                    (rainbow_scale / 100)) & 255;
+                            const x = (rainbow_value/255) * (cmap.length - 1);
+                            const color = rgbToHexA(cmap[~~x]);
+                            const offset = (i/88 * 100).toFixed(2) + '%';
+                            gradient.innerHTML += '<stop offset="' + offset + '" stop-color="' + color + '"/>';
                         }
-                        ctx.fillStyle = grd;
-                        ctx.fillRect(0, 0, width, height);
                     }
 
-                    if (Number(document.getElementById("rainbow_timeshift").value) !== 0
-                            && document.getElementById("color_mode").value === "Rainbow"
+                    if (Number(document.getElementById("rainbow_timeshift")?.value ?? 0) !== 0
+                            && document.getElementById("color_mode")?.value === "Rainbow"
                             && current_page === "ledsettings") {
                         rainbow_animation = window.requestAnimationFrame(update_rainbowctx);
                     }
@@ -809,26 +940,41 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 const curve = ~~document.getElementById("velocityrainbow_curve").value;
                 const colormap = document.getElementById("velocityrainbow_colormap").value;
 
-                document.getElementById("current_led_color").innerHTML = '<canvas id="VelocityRainbowPreview" style="width: 100%; height: 40px;"></canvas>';
-                const canvas = document.getElementById('VelocityRainbowPreview');
-                const width = canvas.clientWidth;
-                const height = canvas.clientHeight;
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext("2d");
-                const grd = ctx.createLinearGradient(0, 0, width, 0);
+                if (!gradients || !gradients[colormap]) {
+                    return;
+                }
                 const cmap = gradients[colormap] ?? [];
                 const stops = cmap.length - 1;
+                
+                let gradientStops = '';
                 for (let i = 0; i <= stops; i++) {
                     const vel = ~~(i * 255 / stops);
                     const vel2 = 255 * powercurve(i / stops, curve / 100);
                     const vel3 = (~~(vel2 * scale / 100) % 256 + 256) % 256;
                     const vel4 = (~~(vel3 + offset) % 256 + 256) % 256;
 
-                    grd.addColorStop(i / stops, rgbToHexA(cmap[~~(vel4 * stops / 255)]));
+                    const color = rgbToHexA(cmap[~~(vel4 * stops / 255)]);
+                    const offsetPercent = (i / stops * 100).toFixed(2) + '%';
+                    gradientStops += '<stop offset="' + offsetPercent + '" stop-color="' + color + '"/>';
                 }
-                ctx.fillStyle = grd;
-                ctx.fillRect(0, 0, width, height);
+                
+                let velocity_rainbow_example = '<svg width="100%" height="45px">';
+                velocity_rainbow_example += '<defs>';
+                velocity_rainbow_example += '<linearGradient id="velocityRainbowGradient">';
+                velocity_rainbow_example += gradientStops;
+                velocity_rainbow_example += '</linearGradient>';
+                velocity_rainbow_example += '<linearGradient id="velocityRainbowGradientOverlay" x1=".5" x2=".5" y2="1">';
+                velocity_rainbow_example += '<stop stop-color="#000" stop-opacity="0"/>';
+                velocity_rainbow_example += '<stop offset=".59" stop-color="#000" stop-opacity=".34217436974789917"/>';
+                velocity_rainbow_example += '<stop offset="1" stop-color="#000"/>';
+                velocity_rainbow_example += '</linearGradient>';
+                velocity_rainbow_example += '</defs>';
+                velocity_rainbow_example += '<rect width="100%" height="45px" fill="url(#velocityRainbowGradient)"/>';
+                velocity_rainbow_example += '<rect width="100%" height="45px" fill="url(#velocityRainbowGradientOverlay)"/>';
+                velocity_rainbow_example += '</svg>';
+                velocity_rainbow_example += '<img class="w-full opacity-50" style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
+                
+                document.getElementById("current_led_color").innerHTML = velocity_rainbow_example;
 
 
                 if (is_editing_sequence === "true") {
@@ -1165,6 +1311,7 @@ function get_learning_status(loop_call = false) {
 
                 document.getElementById("practice").value = response["practice"];
                 document.getElementById("tempo_slider").value = response["set_tempo"];
+                document.getElementById("tempo").innerHTML = response["set_tempo"];
                 document.getElementById("hands").value = response["hands"];
                 document.getElementById("mute_hand").value = response["mute_hand"];
 
@@ -1183,12 +1330,13 @@ function get_learning_status(loop_call = false) {
 
                 document.getElementById("hand_colorR").style.fill = 'rgb(' + hand_colorR_RGB + ')';
                 document.getElementById("hand_colorL").style.fill = 'rgb(' + hand_colorL_RGB + ')';
+                
+                document.getElementById("is_led_activeR").checked = response["is_led_activeR"];
+                document.getElementById("is_led_activeL").checked = response["is_led_activeL"];
 
                 document.getElementById("number_of_mistakes").value = response["number_of_mistakes"];
 
-                if (response["is_loop_active"] === 1) {
-                    document.getElementById("is_loop_active").checked = true;
-                }
+                document.getElementById("is_loop_active").checked = response["is_loop_active"];
 
                 const min = 0;
                 const max = 100;
@@ -2226,4 +2374,3 @@ if (document.readyState === 'loading') {
         }
     } catch (e) { /* no-op */ }
 })();
-

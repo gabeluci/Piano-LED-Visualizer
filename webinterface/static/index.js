@@ -17,7 +17,6 @@ let uploadProgress = [];
 
 let advancedMode = false;
 
-let gradients;
 let config_settings;
 let live_settings;
 let current_page = "main";
@@ -364,6 +363,16 @@ function setAdvancedMode(mode) {
         element.style.display = newDisplayStyle;
     });
 
+    // Update secondary stats grid columns based on advanced mode
+    const secondaryStatsGrid = document.getElementById('secondary_stats_grid');
+    if (secondaryStatsGrid) {
+        if (advancedMode) {
+            secondaryStatsGrid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6';
+        } else {
+            secondaryStatsGrid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6';
+        }
+    }
+
     // Save the user's choice in a cookie
     const modeValue = advancedMode ? 'advanced' : 'normal';
     setCookie('mode', modeValue, 365)
@@ -378,7 +387,12 @@ function checkSavedMode() {
         if (mode === 'advanced') {
             modeSwitch.checked = true;
             setAdvancedMode(true);
+        } else {
+            setAdvancedMode(false);
         }
+    } else {
+        // Default to normal mode if no cookie exists
+        setAdvancedMode(false);
     }
 }
 
