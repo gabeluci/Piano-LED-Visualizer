@@ -591,11 +591,22 @@ function get_settings(home = true) {
                 }
                 if (response.light_mode === "Velocity") {
                     document.getElementById('velocity').hidden = false;
+                    document.getElementById('pedal').hidden = true;
                     document.getElementById('velocity_speed').value = response.fading_speed;
                 }
                 if (response.light_mode === "Pedal") {
-                    document.getElementById('velocity').hidden = false;
-                    document.getElementById('velocity_speed').value = response.fading_speed;
+                    document.getElementById('velocity').hidden = true;
+                    document.getElementById('pedal').hidden = false;
+                    document.getElementById('pedal_speed').value = response.fading_speed;
+                }
+                if (response.light_mode === "Pulse") {
+                    document.getElementById('pulse').hidden = false;
+                    document.getElementById('pulse_animation_speed').value = response.pulse_animation_speed;
+                    document.getElementById('pulse_animation_distance').value = response.pulse_animation_distance;
+                    document.getElementById('pulse_flicker_strength').value = response.pulse_flicker_strength;
+                    // Convert radians per second to Hz for display
+                    let hz = parseFloat(response.pulse_flicker_speed) / (2 * Math.PI);
+                    document.getElementById('pulse_flicker_speed').value = hz.toFixed(2);
                 }
 
                 document.getElementById("led_color").value = response["led_color"];
@@ -657,6 +668,32 @@ function get_led_idle_animation_settings(){
             document.getElementById("led_animation").value = response["led_animation"];
             document.getElementById("brightness_percent").value = response["led_animation_brightness_percent"];
             document.getElementById("brightness").value = response["led_animation_brightness_percent"];
+            
+            // Handle animation speed
+            const speedValue = response["led_animation_speed"] || "";
+            const speedPreset = document.getElementById("led_animation_speed_preset");
+            const speedCustom = document.getElementById("led_animation_speed_custom");
+            const speedDisplay = document.getElementById("current_speed_display");
+            if (speedPreset && speedCustom) {
+                if (speedValue && !isNaN(speedValue) && speedValue !== "") {
+                    // Numeric value - use custom
+                    speedPreset.value = "custom";
+                    speedCustom.style.display = "block";
+                    speedCustom.value = speedValue;
+                    if (speedDisplay) speedDisplay.textContent = `${translate("current")} ${speedValue}ms`;
+                } else if (speedValue && ["Slow", "Medium", "Fast"].includes(speedValue)) {
+                    // Preset value
+                    speedPreset.value = speedValue;
+                    speedCustom.style.display = "none";
+                    if (speedDisplay) speedDisplay.textContent = `${translate("current")} ${speedValue}`;
+                } else {
+                    // No speed set - use default
+                    speedPreset.value = "Medium";
+                    speedCustom.style.display = "none";
+                    if (speedDisplay) speedDisplay.textContent = `${translate("current")} Medium`;
+                }
+            }
+            
             if (document.getElementById("idle_timeout_minutes")) {
                 document.getElementById("idle_timeout_minutes").value = response["idle_timeout_minutes"];
             }
@@ -669,6 +706,71 @@ function get_led_idle_animation_settings(){
         }
     }
     xhttp.open("GET", "/api/get_idle_animation_settings", true);
+    xhttp.send();
+}
+
+// Animation Speed Control Functions
+function handle_speed_preset_change() {
+    const presetSelect = document.getElementById('led_animation_speed_preset');
+    const customInput = document.getElementById('led_animation_speed_custom');
+    const speedDisplay = document.getElementById('current_speed_display');
+    const speedDescription = document.getElementById('custom_speed_description');
+    
+    if (!presetSelect) return;
+    
+    if (presetSelect.value === 'custom') {
+        if (customInput) {
+            customInput.style.display = 'block';
+            customInput.focus();
+        }
+        if (speedDescription) speedDescription.style.display = 'block';
+        if (speedDisplay) speedDisplay.textContent = '';
+    } else {
+        if (customInput) customInput.style.display = 'none';
+        if (speedDescription) speedDescription.style.display = 'none';
+        if (presetSelect.value) {
+            // Use the dedicated animation speed change endpoint
+            const xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState === 4 && this.status === 200) {
+                    const response = JSON.parse(this.responseText);
+                    if (response.success) {
+                        update_speed_display(presetSelect.value);
+                    }
+                }
+            };
+            xhttp.open("GET", "/api/change_animation_speed?speed_value=" + encodeURIComponent(presetSelect.value), true);
+            xhttp.send();
+        } else {
+            if (speedDisplay) speedDisplay.textContent = '';
+        }
+    }
+}
+
+function update_speed_display(speedValue) {
+    const speedDisplay = document.getElementById('current_speed_display');
+    if (!speedDisplay) return;
+    if (speedValue && !isNaN(speedValue)) {
+        speedDisplay.textContent = `${translate("current")} ${speedValue}ms`;
+    } else if (speedValue) {
+        speedDisplay.textContent = `${translate("current")} ${speedValue}`;
+    } else {
+        speedDisplay.textContent = '';
+    }
+}
+
+function change_animation_speed_custom(value) {
+    if (!value || value < 1) return;
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            const response = JSON.parse(this.responseText);
+            if (response.success) {
+                update_speed_display(value);
+            }
+        }
+    };
+    xhttp.open("GET", "/api/change_animation_speed?speed_value=" + encodeURIComponent(value), true);
     xhttp.send();
 }
 
@@ -695,14 +797,29 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
             if (is_editing_sequence === "true") {
                 document.getElementById('fading').hidden = true;
                 document.getElementById('velocity').hidden = true;
+                document.getElementById('pedal').hidden = true;
+                document.getElementById('pulse').hidden = true;
                 document.getElementById("light_mode").value = response["light_mode"];
                 if (response["light_mode"] === "Fading") {
                     document.getElementById('fading').hidden = false;
                     document.getElementById('fading_speed').value = response["fading_speed"];
                 }
-                if (response["light_mode"] === "Velocity" || response["light_mode"] === "Pedal") {
+                if (response["light_mode"] === "Velocity") {
                     document.getElementById('velocity').hidden = false;
-                    document.getElementById('fading_speed').value = response["fading_speed"];
+                    document.getElementById('velocity_speed').value = response["fading_speed"];
+                }
+                if (response["light_mode"] === "Pedal") {
+                    document.getElementById('pedal').hidden = false;
+                    document.getElementById('pedal_speed').value = response["fading_speed"];
+                }
+                if (response["light_mode"] === "Pulse") {
+                    document.getElementById('pulse').hidden = false;
+                    document.getElementById('pulse_animation_speed').value = response["pulse_animation_speed"];
+                    document.getElementById('pulse_animation_distance').value = response["pulse_animation_distance"];
+                    document.getElementById('pulse_flicker_strength').value = response["pulse_flicker_strength"];
+                    // Convert radians per second to Hz for display
+                    let hz = parseFloat(response["pulse_flicker_speed"]) / (2 * Math.PI);
+                    document.getElementById('pulse_flicker_speed').value = hz.toFixed(2);
                 }
                 document.getElementById("color_mode").value = response["color_mode"];
                 change_setting("color_mode", response["color_mode"], "no_reload", true);

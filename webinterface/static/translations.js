@@ -75,6 +75,21 @@ const translations = {
         switch_ports: "Switch Ports",
         view_on_github: "View on GitHub",
         join_discord: "Join Discord server",
+        
+        //ledanimations
+        animation_speed: "Animation Speed",
+        global_speed_info: "Global speed for all animations",
+        use_preset: "Use preset",
+        custom_ms: "Custom (ms)",
+        custom_speed_description: "Delay in ms (higher value = slower)",
+        start_animation: "Start Animation",
+        current: "Current:",
+        colors_from_scale_mode: "Colors are taken from Scale color mode",
+        brightness_from_backlight: "Brightness is taken from backlight settings",
+        animation_controls: "Animation Controls",
+        special_animations: "Special Animations",
+        chords: "Chords",
+        colormap: "Colormap",
 
         //ledcolor
         led_color: "LED Color",
@@ -133,6 +148,15 @@ const translations = {
         light_number: "Note Number",
         note_offset: "Note offset",
         disable_backlight_on_idle: "Disable Backlight on idle",
+        color_settings: "Color settings",
+        brightness_display: "Brightness & display",
+        advanced_settings: "Advanced settings",
+        flicker_strength: "Flicker strength",
+        flicker_speed: "Flicker speed (Hz)",
+        distance: "Distance",
+        pulse_flicker_strength_tooltip: "Controls the intensity of the flicker effect on the pulse animation. Higher values create more pronounced flickering.",
+        pulse_distance_tooltip: "Controls how far the pulse animation expands from the pressed key in LED positions.",
+        gamma_correction: "Gamma Correction",
 
         //songs
         status: "Status",
@@ -284,6 +308,10 @@ const translations = {
 
         //homepage
         advanced_mode: "Advanced mode",
+        system_controls: "System Controls",
+        display_settings: "Display Settings",
+        visualizer_controls: "Visualizer Controls",
+        settings: "Settings",
         system_cpu_usage: "System CPU usage",
         ram_usage: "Ram usage",
         disk_usage: "Disk Usage",
@@ -374,12 +402,27 @@ const translations = {
         fast_color: "Szybko - kolor",
         max_notes: "Maksymalna liczba nut",
         period_in_seconds: "Okres w sekundach",
-        start: "Początek",
+        start: "Rozpocznij",
         end: "Koniec",
         color_for_in_scale: "Kolor dla nut w skali",
         color_for_not_in_scale: "Kolor dla nut poza skalą",
         scale_key: "Klucz skali",
 
+        //ledanimations
+        animation_speed: "Szybkość animacji",
+        global_speed_info: "Szybkość globalna dla wszystkich animacji",
+        use_preset: "Użyj presetu",
+        custom_ms: "Niestandardowe (ms)",
+        custom_speed_description: "Opóźnienie w ms (wyższa wartość = wolniej)",
+        start_animation: "Uruchom animację",
+        current: "Aktualne:",
+        colors_from_scale_mode: "Kolory są pobierane z trybu kolorów skali",
+        brightness_from_backlight: "Jasność jest pobierana z ustawień podświetlenia",
+        animation_controls: "Kontrola animacji",
+        special_animations: "Animacje specjalne",
+        chords: "Akordy",
+        colormap: "Mapa kolorów",
+        stop_animation: "Zatrzymaj animację",
 
         //ledcolor
         led_color: "Kolor LED",
@@ -423,6 +466,15 @@ const translations = {
         light_number: "Numer nuty",
         note_offset: "Przesunięcie",
         disable_backlight_on_idle: "Wyłącz podświetlenie w stanie spoczynku",
+        color_settings: "Ustawienia kolorów",
+        brightness_display: "Jasność i wyświetlanie",
+        advanced_settings: "Ustawienia zaawansowane",
+        flicker_strength: "Siła migotania",
+        flicker_speed: "Prędkość migotania (Hz)",
+        distance: "Odległość",
+        pulse_flicker_strength_tooltip: "Kontroluje intensywność efektu migotania w animacji pulsującej. Wyższe wartości tworzą bardziej wyraźne migotanie.",
+        pulse_distance_tooltip: "Kontroluje, jak daleko animacja pulsująca rozszerza się od naciśniętego klawisza w pozycjach LED.",
+        gamma_correction: "Korekta gamma",
 
         //songs
         status: "Status",
@@ -575,6 +627,10 @@ const translations = {
 
         //homepage
         advanced_mode: "Tryb zaawansowany",
+        system_controls: "Kontrola systemu",
+        display_settings: "Ustawienia wyświetlania",
+        visualizer_controls: "Kontrola wizualizatora",
+        settings: "Ustawienia",
         system_cpu_usage: "Użycie procesora przez system",
         ram_usage: "Użycie RAM",
         disk_usage: "Użycie dysku",
@@ -724,6 +780,15 @@ const translations = {
         light_number: "Numéro de note",
         note_offset: "Décalage des notes",
         disable_backlight_on_idle: "Désactiver le rétroéclairage en veille",
+        color_settings: "Paramètres de couleur",
+        brightness_display: "Luminosité et affichage",
+        advanced_settings: "Paramètres avancés",
+        flicker_strength: "Intensité du scintillement",
+        flicker_speed: "Vitesse du scintillement (Hz)",
+        distance: "Distance",
+        pulse_flicker_strength_tooltip: "Contrôle l'intensité de l'effet de scintillement sur l'animation pulsée. Des valeurs plus élevées créent un scintillement plus prononcé.",
+        pulse_distance_tooltip: "Contrôle la distance à laquelle l'animation pulsée s'étend depuis la touche pressée en positions LED.",
+        gamma_correction: "Correction gamma",
 
         //songs
         status: "Statut",
@@ -862,6 +927,19 @@ const translations = {
         password_too_short_strength: "Trop court",
 
         //ledanimations
+        animation_speed: "Vitesse d'animation",
+        global_speed_info: "Vitesse globale pour toutes les animations",
+        use_preset: "Utiliser un préréglage",
+        custom_ms: "Personnalisé (ms)",
+        custom_speed_description: "Délai en ms (valeur plus élevée = plus lent)",
+        start_animation: "Démarrer l'animation",
+        current: "Actuel:",
+        colors_from_scale_mode: "Les couleurs sont prises du mode couleur d'échelle",
+        brightness_from_backlight: "La luminosité est prise des paramètres de rétroéclairage",
+        animation_controls: "Contrôles d'animation",
+        special_animations: "Animations spéciales",
+        chords: "Accords",
+        colormap: "Carte de couleurs",
         stop_animation: "Arrêter l'animation",
         led_animation_on_idle: "Animation LED en veille",
         after_minutes: "après minutes (0 - jamais)",
@@ -876,6 +954,10 @@ const translations = {
 
         //homepage
         advanced_mode: "Mode avancé",
+        system_controls: "Contrôles système",
+        display_settings: "Paramètres d'affichage",
+        visualizer_controls: "Contrôles du visualiseur",
+        settings: "Paramètres",
         system_cpu_usage: "Utilisation du CPU du système",
         ram_usage: "Utilisation de la RAM",
         disk_usage: "Utilisation du disque",
@@ -1029,6 +1111,15 @@ const translations = {
         light_number: "Notennummer",
         note_offset: "Notenversatz",
         disable_backlight_on_idle: "Deaktivieren Sie die Hintergrundbeleuchtung im Leerlauf",
+        color_settings: "Farbeinstellungen",
+        brightness_display: "Helligkeit & Anzeige",
+        advanced_settings: "Erweiterte Einstellungen",
+        flicker_strength: "Flimmerstärke",
+        flicker_speed: "Flimmergeschwindigkeit (Hz)",
+        distance: "Entfernung",
+        pulse_flicker_strength_tooltip: "Steuert die Intensität des Flimmereffekts bei der Pulsanimation. Höhere Werte erzeugen ein ausgeprägteres Flimmern.",
+        pulse_distance_tooltip: "Steuert, wie weit sich die Pulsanimation von der gedrückten Taste in LED-Positionen ausdehnt.",
+        gamma_correction: "Gammakorrektur",
 
         //songs
         status: "Status",
@@ -1167,6 +1258,19 @@ const translations = {
         password_too_short_strength: "Zu kurz",
 
         //ledanimations
+        animation_speed: "Animationsgeschwindigkeit",
+        global_speed_info: "Globale Geschwindigkeit für alle Animationen",
+        use_preset: "Preset verwenden",
+        custom_ms: "Benutzerdefiniert (ms)",
+        custom_speed_description: "Verzögerung in ms (höherer Wert = langsamer)",
+        start_animation: "Animation starten",
+        current: "Aktuell:",
+        colors_from_scale_mode: "Farben werden aus dem Skalenfarbmodus übernommen",
+        brightness_from_backlight: "Helligkeit wird aus den Hintergrundbeleuchtungseinstellungen übernommen",
+        animation_controls: "Animationssteuerung",
+        special_animations: "Spezielle Animationen",
+        chords: "Akkorde",
+        colormap: "Farbkarte",
         stop_animation: "Animation stoppen",
         led_animation_on_idle: "LED-Animation im Leerlauf",
         after_minutes: "nach Minuten (0 - niemals)",
@@ -1180,6 +1284,10 @@ const translations = {
 
         //homepage
         advanced_mode: "Erweiterter Modus",
+        system_controls: "Systemsteuerung",
+        display_settings: "Anzeigeeinstellungen",
+        visualizer_controls: "Visualisierungssteuerung",
+        settings: "Einstellungen",
         system_cpu_usage: "Verwendung der System-CPU",
         ram_usage: "Ram-Verwendung",
         disk_usage: "Festplattenverbrauch",
@@ -1332,6 +1440,15 @@ const translations = {
         light_number: "Número de nota",
         note_offset: "Offset de nota",
         disable_backlight_on_idle: "Desactivar retroiluminación en reposo",
+        color_settings: "Configuración de color",
+        brightness_display: "Brillo y pantalla",
+        advanced_settings: "Configuración avanzada",
+        flicker_strength: "Intensidad del parpadeo",
+        flicker_speed: "Velocidad del parpadeo (Hz)",
+        distance: "Distancia",
+        pulse_flicker_strength_tooltip: "Controla la intensidad del efecto de parpadeo en la animación de pulso. Valores más altos crean un parpadeo más pronunciado.",
+        pulse_distance_tooltip: "Controla qué tan lejos se expande la animación de pulso desde la tecla presionada en posiciones LED.",
+        gamma_correction: "Corrección gamma",
 
         //songs
         status: "Estado",
@@ -1470,6 +1587,19 @@ const translations = {
         password_too_short_strength: "Demasiado corto",
 
         //ledanimations
+        animation_speed: "Velocidad de animación",
+        global_speed_info: "Velocidad global para todas las animaciones",
+        use_preset: "Usar preajuste",
+        custom_ms: "Personalizado (ms)",
+        custom_speed_description: "Retardo en ms (valor más alto = más lento)",
+        start_animation: "Iniciar animación",
+        current: "Actual:",
+        colors_from_scale_mode: "Los colores se toman del modo de color de escala",
+        brightness_from_backlight: "El brillo se toma de la configuración de retroiluminación",
+        animation_controls: "Controles de animación",
+        special_animations: "Animaciones especiales",
+        chords: "Acordes",
+        colormap: "Mapa de colores",
         stop_animation: "Detener animación",
         led_animation_on_idle: "Animación LED en reposo",
         after_minutes: "después de minutos (0 - nunca)",
@@ -1483,6 +1613,10 @@ const translations = {
 
         //homepage
         advanced_mode: "Modo avanzado",
+        system_controls: "Controles del sistema",
+        display_settings: "Configuración de pantalla",
+        visualizer_controls: "Controles del visualizador",
+        settings: "Configuración",
         system_cpu_usage: "Uso de CPU del sistema",
         ram_usage: "Uso de RAM",
         disk_usage: "Uso del disco",
@@ -1633,6 +1767,15 @@ const translations = {
         light_number: "音符编号",
         note_offset: "音符偏移",
         disable_backlight_on_idle: "待机时关闭背光",
+        color_settings: "颜色设置",
+        brightness_display: "亮度和显示",
+        advanced_settings: "高级设置",
+        flicker_strength: "闪烁强度",
+        flicker_speed: "闪烁速度 (Hz)",
+        distance: "距离",
+        pulse_flicker_strength_tooltip: "控制脉冲动画上闪烁效果的强度。值越高，闪烁越明显。",
+        pulse_distance_tooltip: "控制脉冲动画从按下的键在LED位置扩展的距离。",
+        gamma_correction: "伽马校正",
 
         //songs
         status: "状态",
@@ -1772,6 +1915,19 @@ const translations = {
         password_too_short_strength: "太短",
 
         //ledanimations
+        animation_speed: "动画速度",
+        global_speed_info: "所有动画的全局速度",
+        use_preset: "使用预设",
+        custom_ms: "自定义 (毫秒)",
+        custom_speed_description: "延迟（毫秒）（值越高 = 越慢）",
+        start_animation: "开始动画",
+        current: "当前:",
+        colors_from_scale_mode: "颜色取自音阶颜色模式",
+        brightness_from_backlight: "亮度取自背光设置",
+        animation_controls: "动画控制",
+        special_animations: "特殊动画",
+        chords: "和弦",
+        colormap: "颜色映射",
         stop_animation: "停止动画",
         led_animation_on_idle: "LED闲置动画",
         after_minutes: "几分钟后（0 - 从不）",
@@ -1785,6 +1941,10 @@ const translations = {
 
         //homepage
         advanced_mode: "高级模式",
+        system_controls: "系统控制",
+        display_settings: "显示设置",
+        visualizer_controls: "可视化器控制",
+        settings: "设置",
         system_cpu_usage: "系统CPU使用",
         ram_usage: "内存使用",
         disk_usage: "磁盘使用",
@@ -1936,6 +2096,15 @@ const translations = {
         light_number: "पनोट नंबर",
         note_offset: "ध्यान ऑफसेट",
         disable_backlight_on_idle: "निष्क्रिय पर प्रकाश प्रक्षेपण बंद करें",
+        color_settings: "रंग सेटिंग्स",
+        brightness_display: "चमक और प्रदर्शन",
+        advanced_settings: "उन्नत सेटिंग्स",
+        flicker_strength: "टिमटिमाने की ताकत",
+        flicker_speed: "टिमटिमाने की गति (Hz)",
+        distance: "दूरी",
+        pulse_flicker_strength_tooltip: "पल्स एनिमेशन पर टिमटिमाने के प्रभाव की तीव्रता को नियंत्रित करता है। उच्च मान अधिक स्पष्ट टिमटिमाहट बनाते हैं।",
+        pulse_distance_tooltip: "नियंत्रित करता है कि पल्स एनिमेशन दबाए गए कुंजी से LED स्थितियों में कितनी दूर तक फैलता है।",
+        gamma_correction: "गामा सुधार",
 
         //songs
         status: "स्थिति",
@@ -2073,6 +2242,19 @@ const translations = {
         password_too_short_strength: "बहुत छोटा",
 
         //ledanimations
+        animation_speed: "एनिमेशन की गति",
+        global_speed_info: "सभी एनिमेशन के लिए वैश्विक गति",
+        use_preset: "प्रीसेट का उपयोग करें",
+        custom_ms: "कस्टम (ms)",
+        custom_speed_description: "मिलीसेकंड में देरी (उच्च मान = धीमा)",
+        start_animation: "एनिमेशन शुरू करें",
+        current: "वर्तमान:",
+        colors_from_scale_mode: "रंग स्केल रंग मोड से लिए जाते हैं",
+        brightness_from_backlight: "चमक बैकलाइट सेटिंग्स से ली जाती है",
+        animation_controls: "एनिमेशन नियंत्रण",
+        special_animations: "विशेष एनिमेशन",
+        chords: "कोर्ड",
+        colormap: "रंग मानचित्र",
         stop_animation: "एनिमेशन रोकें",
         led_animation_on_idle: "आईडल पर एलईडी एनिमेशन",
         after_minutes: "मिनटों के बाद (0 - कभी नहीं)",
@@ -2086,6 +2268,10 @@ const translations = {
 
         //homepage
         advanced_mode: "उन्नत मोड",
+        system_controls: "सिस्टम नियंत्रण",
+        display_settings: "प्रदर्शन सेटिंग्स",
+        visualizer_controls: "विज़ुअलाइज़र नियंत्रण",
+        settings: "सेटिंग्स",
         system_cpu_usage: "सिस्टम सीपीयू उपयोग",
         ram_usage: "रैम उपयोग",
         disk_usage: "डिस्क उपयोग",
@@ -2238,6 +2424,15 @@ const translations = {
         light_number: "Número da Nota",
         note_offset: "Desvio da nota",
         disable_backlight_on_idle: "Desativar iluminação de fundo em repouso",
+        color_settings: "Configurações de cor",
+        brightness_display: "Brilho e exibição",
+        advanced_settings: "Configurações avançadas",
+        flicker_strength: "Intensidade do tremulação",
+        flicker_speed: "Velocidade do tremulação (Hz)",
+        distance: "Distância",
+        pulse_flicker_strength_tooltip: "Controla a intensidade do efeito de tremulação na animação de pulso. Valores mais altos criam tremulação mais pronunciada.",
+        pulse_distance_tooltip: "Controla até que ponto a animação de pulso se expande da tecla pressionada em posições LED.",
+        gamma_correction: "Correção gama",
 
         //songs
         status: "Status",
@@ -2377,6 +2572,19 @@ const translations = {
         password_too_short_strength: "Muito curta",
 
         //ledanimations
+        animation_speed: "Velocidade da animação",
+        global_speed_info: "Velocidade global para todas as animações",
+        use_preset: "Usar predefinição",
+        custom_ms: "Personalizado (ms)",
+        custom_speed_description: "Atraso em ms (valor mais alto = mais lento)",
+        start_animation: "Iniciar animação",
+        current: "Atual:",
+        colors_from_scale_mode: "As cores são obtidas do modo de cor de escala",
+        brightness_from_backlight: "O brilho é obtido das configurações de retroiluminação",
+        animation_controls: "Controles de animação",
+        special_animations: "Animações especiais",
+        chords: "Acordes",
+        colormap: "Mapa de cores",
         stop_animation: "Parar animação",
         led_animation_on_idle: "Animação de LED em ociosidade",
         after_minutes: "depois de minutos (0 - nunca)",
@@ -2390,6 +2598,10 @@ const translations = {
 
         //homepage
         advanced_mode: "Modo avançado",
+        system_controls: "Controles do sistema",
+        display_settings: "Configurações de exibição",
+        visualizer_controls: "Controles do visualizador",
+        settings: "Configurações",
         system_cpu_usage: "Uso de CPU do sistema",
         ram_usage: "Uso de RAM",
         disk_usage: "Uso de disco",
@@ -2499,6 +2711,22 @@ const translations = {
         color_for_not_in_scale: "スケール外の色",
         scale_key: "スケールキー",
 
+        //ledanimations
+        animation_speed: "アニメーション速度",
+        global_speed_info: "すべてのアニメーションのグローバル速度",
+        use_preset: "プリセットを使用",
+        custom_ms: "カスタム (ms)",
+        custom_speed_description: "ミリ秒単位の遅延（値が大きいほど遅くなります）",
+        start_animation: "アニメーションを開始",
+        current: "現在:",
+        colors_from_scale_mode: "色はスケールカラーモードから取得されます",
+        brightness_from_backlight: "明るさはバックライト設定から取得されます",
+        animation_controls: "アニメーション制御",
+        special_animations: "特殊アニメーション",
+        chords: "コード",
+        colormap: "カラーマップ",
+        stop_animation: "アニメーションを停止",
+
         //ledcolor
         led_color: "LEDの色",
         multicolor: "マルチカラー",
@@ -2541,6 +2769,15 @@ const translations = {
         light_number: "ノート番号",
         note_offset: "ノートオフセット",
         disable_backlight_on_idle: "アイドル状態でバックライトを無効にする",
+        color_settings: "色設定",
+        brightness_display: "明るさと表示",
+        advanced_settings: "詳細設定",
+        flicker_strength: "ちらつきの強度",
+        flicker_speed: "ちらつきの速度 (Hz)",
+        distance: "距離",
+        pulse_flicker_strength_tooltip: "パルスアニメーションのちらつき効果の強度を制御します。値が高いほど、より顕著なちらつきが発生します。",
+        pulse_distance_tooltip: "押されたキーからLED位置へのパルスアニメーションの拡張距離を制御します。",
+        gamma_correction: "ガンマ補正",
 
         //songs
         status: "ステータス",
@@ -2692,6 +2929,10 @@ const translations = {
 
         //homepage
         advanced_mode: "アドバンストモード",
+        system_controls: "システム制御",
+        display_settings: "表示設定",
+        visualizer_controls: "ビジュアライザー制御",
+        settings: "設定",
         system_cpu_usage: "システムCPU使用率",
         ram_usage: "RAM使用量",
         disk_usage: "ディスク使用量",
@@ -2842,6 +3083,15 @@ const translations = {
     light_number: "노트 번호",
     note_offset: "음표 오프셋",
     disable_backlight_on_idle: "대기 시 백라이트 비활성화",
+    color_settings: "색상 설정",
+    brightness_display: "밝기 및 표시",
+    advanced_settings: "고급 설정",
+    flicker_strength: "깜박임 강도",
+    flicker_speed: "깜박임 속도 (Hz)",
+    distance: "거리",
+    pulse_flicker_strength_tooltip: "펄스 애니메이션의 깜박임 효과 강도를 제어합니다. 값이 높을수록 더 뚜렷한 깜박임이 생성됩니다.",
+    pulse_distance_tooltip: "눌린 키에서 LED 위치로 펄스 애니메이션이 확장되는 거리를 제어합니다.",
+    gamma_correction: "감마 보정",
 
     //songs
     status: "상태",
@@ -2979,8 +3229,21 @@ const translations = {
     password_strength_very_strong: "매우 강함",
     password_too_short_strength: "너무 짧음",
 
-    //ledanimations
-    stop_animation: "애니메이션 중지",
+        //ledanimations
+        animation_speed: "애니메이션 속도",
+        global_speed_info: "모든 애니메이션의 전역 속도",
+        use_preset: "프리셋 사용",
+        custom_ms: "사용자 정의 (ms)",
+        custom_speed_description: "ms 단위 지연 (값이 클수록 느림)",
+        start_animation: "애니메이션 시작",
+        current: "현재:",
+        colors_from_scale_mode: "색상은 스케일 색상 모드에서 가져옵니다",
+        brightness_from_backlight: "밝기는 백라이트 설정에서 가져옵니다",
+        animation_controls: "애니메이션 제어",
+        special_animations: "특수 애니메이션",
+        chords: "화음",
+        colormap: "색상 맵",
+        stop_animation: "애니메이션 중지",
     led_animation_on_idle: "대기 중 LED 애니메이션",
     after_minutes: "몇 분 후 (0 - 사용안함)",
     animation_type: "애니메이션 유형",
@@ -2993,6 +3256,10 @@ const translations = {
 
     //homepage
     advanced_mode: "고급 모드",
+    system_controls: "시스템 제어",
+    display_settings: "디스플레이 설정",
+    visualizer_controls: "비주얼라이저 제어",
+    settings: "설정",
     system_cpu_usage: "시스템 CPU 사용량",
     ram_usage: "RAM 사용량",
     disk_usage: "디스크 사용량",
@@ -3142,6 +3409,15 @@ he: {
     light_number: "מספר אור",
     note_offset: "היסט תו",
     disable_backlight_on_idle: "כבה תאורת רקע במצב מנוחה",
+    color_settings: "הגדרות צבע",
+    brightness_display: "בהירות ותצוגה",
+    advanced_settings: "הגדרות מתקדמות",
+    flicker_strength: "עוצמת הבהוב",
+    flicker_speed: "מהירות הבהוב (Hz)",
+    distance: "מרחק",
+    pulse_flicker_strength_tooltip: "שולט בעוצמת אפקט הבהוב באנימציית הדופק. ערכים גבוהים יותר יוצרים הבהוב בולט יותר.",
+    pulse_distance_tooltip: "שולט עד כמה האנימציית הדופק מתרחבת מהמקש הלחוץ במיקומי LED.",
+    gamma_correction: "תיקון גמא",
 
     //songs
     status: "מצב",
@@ -3262,8 +3538,21 @@ he: {
     change_address: "שנה כתובת",
     enter_local_address: "הזן כתובת מקומית",
 
-    //ledanimations
-    stop_animation: "עצור אנימציה",
+        //ledanimations
+        animation_speed: "מהירות אנימציה",
+        global_speed_info: "מהירות גלובלית לכל האנימציות",
+        use_preset: "השתמש בהגדרה מראש",
+        custom_ms: "מותאם אישית (ms)",
+        custom_speed_description: "השהיה ב-ms (ערך גבוה יותר = איטי יותר)",
+        start_animation: "התחל אנימציה",
+        current: "נוכחי:",
+        colors_from_scale_mode: "צבעים נלקחים ממצב צבע סולם",
+        brightness_from_backlight: "בהירות נלקחת מהגדרות תאורה אחורית",
+        animation_controls: "בקרת אנימציה",
+        special_animations: "אנימציות מיוחדות",
+        chords: "אקורדים",
+        colormap: "מפת צבעים",
+        stop_animation: "עצור אנימציה",
     led_animation_on_idle: "אנימציית לד במצב מנוחה",
     after_minutes: "לאחר דקות",
     animation_type: "סוג אנימציה",
@@ -3276,6 +3565,10 @@ he: {
 
     //homepage
     advanced_mode: "מצב מתקדם",
+    system_controls: "בקרת מערכת",
+    display_settings: "הגדרות תצוגה",
+    visualizer_controls: "בקרת ויזואליזציה",
+    settings: "הגדרות",
     system_cpu_usage: "שימוש במעבד",
     ram_usage: "שימוש בזיכרון",
     disk_usage: "שימוש בדיסק",
@@ -3389,6 +3682,22 @@ ar:{
     color_for_not_in_scale: "لون للنغمات خارج السلم",
     scale_key: "مفتاح السلم",
 
+    //ledanimations
+    animation_speed: "سرعة الرسوم المتحركة",
+    global_speed_info: "سرعة عالمية لجميع الرسوم المتحركة",
+    use_preset: "استخدام الإعداد المسبق",
+    custom_ms: "مخصص (مللي ثانية)",
+    custom_speed_description: "تأخير بالمللي ثانية (قيمة أعلى = أبطأ)",
+    start_animation: "بدء الرسوم المتحركة",
+    current: "الحالي:",
+    colors_from_scale_mode: "يتم أخذ الألوان من وضع لون المقياس",
+    brightness_from_backlight: "يتم أخذ السطوع من إعدادات الإضاءة الخلفية",
+    animation_controls: "عناصر تحكم الرسوم المتحركة",
+    special_animations: "رسوم متحركة خاصة",
+    chords: "الأنغام",
+    colormap: "خريطة الألوان",
+    stop_animation: "إيقاف الرسوم المتحركة",
+
     // lightmode
     fading: "تلاشي",
     velocity: "السرعة",
@@ -3422,6 +3731,15 @@ ar:{
     light_number: "رقم النغمة",
     note_offset: "إزاحة النغمة",
     disable_backlight_on_idle: "إيقاف الإضاءة الخلفية وقت الخمول",
+    color_settings: "إعدادات اللون",
+    brightness_display: "السطوع والعرض",
+    advanced_settings: "الإعدادات المتقدمة",
+    flicker_strength: "قوة الوميض",
+    flicker_speed: "سرعة الوميض (Hz)",
+    distance: "المسافة",
+    pulse_flicker_strength_tooltip: "يتحكم في شدة تأثير الوميض على الرسوم المتحركة النبضية. القيم الأعلى تخلق وميضًا أكثر وضوحًا.",
+    pulse_distance_tooltip: "يتحكم في مدى توسع الرسوم المتحركة النبضية من المفتاح المضغوط في مواضع LED.",
+    gamma_correction: "تصحيح جاما",
 
     // songs
     status: "الحالة",
@@ -3557,6 +3875,10 @@ ar:{
 
     // homepage
     advanced_mode: "الوضع المتقدم",
+    system_controls: "عناصر تحكم النظام",
+    display_settings: "إعدادات العرض",
+    visualizer_controls: "عناصر تحكم العارض",
+    settings: "الإعدادات",
     system_cpu_usage: "استهلاك المعالج",
     ram_usage: "استهلاك الرام",
     disk_usage: "استهلاك الهارد",
