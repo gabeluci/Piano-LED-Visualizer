@@ -1,7 +1,7 @@
 from webinterface import webinterface, app_state
 from flask import render_template, send_file, request, jsonify
 from werkzeug.security import safe_join
-from lib.functions import (get_last_logs, find_between, fastColorWipe, play_midi, clamp)
+from lib.functions import (get_last_logs, find_between, fastColorWipe, play_midi, clamp, validate_schedule_overlaps)
 from lib.led_animations import get_registry
 import lib.colormaps as cmap
 import psutil
@@ -9,6 +9,9 @@ import threading
 import webcolors as wc
 import mido
 from xml.dom import minidom
+import xml.etree.ElementTree as ET
+import glob
+import shutil
 from subprocess import call
 import subprocess
 import datetime
@@ -154,8 +157,37 @@ def get_homepage_data():
         'screen_on': app_state.menu.screen_on,
         'display_type': app_state.menu.args.display if app_state.menu and app_state.menu.args and app_state.menu.args.display else app_state.usersettings.get_setting_value("display_type") or '1in44',
         'led_pin': app_state.usersettings.get_setting_value("led_pin") or '18',
+        'timezone': app_state.platform.get_current_timezone() if hasattr(app_state.platform, 'get_current_timezone') else 'UTC',
     }
     return jsonify(homepage_data)
+
+
+@webinterface.route('/api/get_timezones', methods=['GET'])
+def get_timezones():
+    """Get list of available timezones."""
+    try:
+        if hasattr(app_state.platform, 'get_available_timezones'):
+            timezones = app_state.platform.get_available_timezones()
+            return jsonify(success=True, timezones=timezones)
+        else:
+            # Return common timezones as fallback
+            common_timezones = [
+                "UTC",
+                "America/New_York",
+                "America/Chicago",
+                "America/Denver",
+                "America/Los_Angeles",
+                "Europe/London",
+                "Europe/Paris",
+                "Europe/Berlin",
+                "Asia/Tokyo",
+                "Asia/Shanghai",
+                "Australia/Sydney"
+            ]
+            return jsonify(success=True, timezones=common_timezones)
+    except Exception as e:
+        logger.warning(f"Error getting timezones: {e}")
+        return jsonify(success=False, error=str(e))
 
 
 @webinterface.route('/api/change_setting', methods=['GET'])
@@ -1059,6 +1091,16 @@ def change_setting():
     if setting_name == "reset_to_default":
         app_state.usersettings.reset_to_default()
 
+    if setting_name == "timezone":
+        if hasattr(app_state.platform, 'set_timezone'):
+            success = app_state.platform.set_timezone(value)
+            if success:
+                return jsonify(success=True, message="Timezone changed successfully.")
+            else:
+                return jsonify(success=False, error="Failed to change timezone.")
+        else:
+            return jsonify(success=False, error="Timezone change not supported on this platform.")
+
     if setting_name == "restart_rpi":
         app_state.platform.reboot()
 
@@ -1743,14 +1785,74 @@ def get_sequence_setting():
 
 @webinterface.route('/api/get_idle_animation_settings', methods=['GET'])
 def get_idle_animation_settings():
+    # Get schedule and parse JSON if it exists
+    schedule_json = app_state.usersettings.get_setting_value("idle_animation_schedule")
+    schedule_list = []
+    if schedule_json:
+        try:
+            schedule_list = json.loads(schedule_json)
+        except (json.JSONDecodeError, TypeError):
+            schedule_list = []
+    
     response = {"led_animation_delay": app_state.usersettings.get_setting_value("led_animation_delay"),
                 "led_animation": app_state.usersettings.get_setting_value("led_animation"),
                 "led_animation_brightness_percent": app_state.ledsettings.led_animation_brightness_percent,
                 "led_animation_speed": app_state.usersettings.get_setting_value("led_animation_speed") or "",
                 "idle_timeout_minutes": app_state.usersettings.get_setting_value("idle_timeout_minutes"),
                 "screensaver_delay": app_state.usersettings.get_setting_value("screensaver_delay"),
-                "screen_off_delay": app_state.usersettings.get_setting_value("screen_off_delay")}
+                "screen_off_delay": app_state.usersettings.get_setting_value("screen_off_delay"),
+                "idle_animation_schedule": schedule_list}
     return jsonify(response)
+
+@webinterface.route('/api/save_idle_animation_schedule', methods=['POST'])
+def save_idle_animation_schedule():
+    try:
+        data = request.get_json()
+        if data is None:
+            return jsonify(success=False, error="Invalid JSON data")
+        
+        schedule_list = data.get('schedule', [])
+        
+        # Validate schedule list structure
+        if not isinstance(schedule_list, list):
+            return jsonify(success=False, error="Schedule must be a list")
+        
+        # Validate each schedule entry
+        for schedule in schedule_list:
+            if not isinstance(schedule, dict):
+                return jsonify(success=False, error="Each schedule entry must be a dictionary")
+            if 'startTime' not in schedule or 'endTime' not in schedule:
+                return jsonify(success=False, error="Each schedule must have startTime and endTime")
+            if 'days' not in schedule or not isinstance(schedule['days'], list):
+                return jsonify(success=False, error="Each schedule must have a days list")
+            if not schedule['days']:
+                return jsonify(success=False, error="Each schedule must have at least one weekday selected")
+        
+        # Validate for overlaps
+        is_valid, error_msg = validate_schedule_overlaps(schedule_list)
+        if not is_valid:
+            return jsonify(success=False, error=error_msg)
+        
+        # Save schedule as JSON string
+        schedule_json = json.dumps(schedule_list)
+        app_state.usersettings.change_setting_value("idle_animation_schedule", schedule_json)
+        app_state.usersettings.save_changes()
+        
+        return jsonify(success=True)
+    except Exception as e:
+        logger.error(f"Error saving idle animation schedule: {e}")
+        return jsonify(success=False, error=f"Error saving schedule: {str(e)}")
+
+@webinterface.route('/api/get_system_time', methods=['GET'])
+def get_system_time():
+    """Get current system time from Linux date command."""
+    try:
+        result = subprocess.run(['date'], capture_output=True, text=True, check=True)
+        return jsonify(success=True, time=result.stdout.strip())
+    except Exception as e:
+        # Fallback to Python datetime if date command fails
+        now = datetime.datetime.now()
+        return jsonify(success=True, time=now.strftime("%a %b %d %H:%M:%S %Z %Y"))
 
 @webinterface.route('/api/get_settings', methods=['GET'])
 def get_settings():
@@ -2431,3 +2533,235 @@ def api_set_current_profile():
 @webinterface.route('/api/get_current_profile', methods=['GET'])
 def api_get_current_profile():
     return jsonify(success=True, profile_id=app_state.current_profile_id)
+# Presets API
+PRESETS_DIR = "config/presets"
+
+# LED settings that should be included in presets (Color Modes, Light Modes, Brightness only)
+LED_SETTINGS_ALLOWLIST = {
+    # Color Mode Settings
+    'color_mode', 'red', 'green', 'blue',
+    'rainbow_offset', 'rainbow_scale', 'rainbow_timeshift', 'rainbow_colormap',
+    'velocityrainbow_offset', 'velocityrainbow_scale', 'velocityrainbow_curve', 'velocityrainbow_colormap',
+    'multicolor', 'multicolor_range', 'multicolor_iteration',
+    'gradient_start_red', 'gradient_start_green', 'gradient_start_blue',
+    'gradient_end_red', 'gradient_end_green', 'gradient_end_blue',
+    'key_in_scale_red', 'key_in_scale_green', 'key_in_scale_blue',
+    'key_not_in_scale_red', 'key_not_in_scale_green', 'key_not_in_scale_blue',
+    'scale_key',
+    'speed_slowest_red', 'speed_slowest_green', 'speed_slowest_blue',
+    'speed_fastest_red', 'speed_fastest_green', 'speed_fastest_blue',
+    'speed_max_notes', 'speed_period_in_seconds',
+    # Light Mode Settings
+    'mode', 'fadingspeed', 'velocity_speed', 'pedal_speed',
+    'pulse_animation_speed', 'pulse_animation_distance', 'pulse_flicker_strength', 'pulse_flicker_speed',
+    'fadepedal_notedrop',
+    # Brightness Settings
+    'backlight_brightness', 'backlight_brightness_percent',
+    'led_animation_brightness_percent',
+    # Other LED Settings
+    'backlight_red', 'backlight_green', 'backlight_blue',
+    'adjacent_mode', 'adjacent_red', 'adjacent_green', 'adjacent_blue',
+    'led_animation', 'led_animation_delay', 'led_animation_speed',
+    'animation_speed_slow', 'animation_speed_medium', 'animation_speed_fast',
+    'led_gamma',
+    'sequence_active'
+}
+
+@webinterface.route('/api/presets', methods=['GET'])
+def list_presets():
+    files = glob.glob(os.path.join(PRESETS_DIR, "*.xml"))
+    presets = [os.path.basename(f) for f in files]
+    presets.sort()
+    return jsonify(success=True, presets=presets)
+
+@webinterface.route('/api/presets', methods=['POST'])
+def save_preset():
+    data = request.get_json()
+    name = data.get('name')
+    if not name:
+        return jsonify(success=False, error="Name is required")
+    
+    if not name.endswith('.xml'):
+        name += '.xml'
+        
+    # Sanitize name
+    name = os.path.basename(name)
+    path = os.path.join(PRESETS_DIR, name)
+    
+    # Ensure presets directory exists
+    try:
+        if not os.path.exists(PRESETS_DIR):
+            os.makedirs(PRESETS_DIR, exist_ok=True)
+    except Exception as e:
+        return jsonify(success=False, error=f"Failed to create directory: {e}")
+    
+    try:
+        # Ensure pending changes are written to disk
+        app_state.usersettings.save_changes()
+        
+        # Load current settings
+        current_tree = ET.parse("config/settings.xml")
+        current_root = current_tree.getroot()
+        
+        # Create new preset XML with only LED settings
+        preset_root = ET.Element("settings")
+        
+        # Copy only LED settings from current settings
+        for elem in current_root:
+            if elem.tag in LED_SETTINGS_ALLOWLIST:
+                # Create a copy of the element
+                new_elem = ET.SubElement(preset_root, elem.tag)
+                new_elem.text = elem.text
+                
+        # Write the minimal preset file
+        preset_tree = ET.ElementTree(preset_root)
+        preset_tree.write(path)
+        
+        return jsonify(success=True)
+    except Exception as e:
+        return jsonify(success=False, error=str(e))
+
+@webinterface.route('/api/presets/load', methods=['POST'])
+def load_preset():
+    data = request.get_json()
+    name = data.get('name')
+    if not name:
+        return jsonify(success=False, error="Name is required")
+        
+    path = os.path.join(PRESETS_DIR, os.path.basename(name))
+    if not os.path.exists(path):
+        return jsonify(success=False, error="Preset not found")
+        
+    try:
+        # Load preset
+        preset_tree = ET.parse(path)
+        preset_root = preset_tree.getroot()
+        
+        # Load current settings
+        current_tree = ET.parse("config/settings.xml")
+        current_root = current_tree.getroot()
+        
+        # Helper to find or create element in current root
+        def get_or_create(root, tag):
+            elem = root.find(tag)
+            if elem is None:
+                elem = ET.SubElement(root, tag)
+            return elem
+            
+        # Update only LED settings from preset
+        for preset_elem in preset_root:
+            # Only update settings that are in the LED allowlist
+            if preset_elem.tag in LED_SETTINGS_ALLOWLIST:
+                current_elem = get_or_create(current_root, preset_elem.tag)
+                current_elem.text = preset_elem.text
+            
+        current_tree.write("config/settings.xml")
+        
+        # Reload application state
+        reload_app_state()
+        
+        return jsonify(success=True)
+    except Exception as e:
+        logger.error(f"Error loading preset: {e}")
+        return jsonify(success=False, error=str(e))
+
+@webinterface.route('/api/presets/delete', methods=['POST'])
+def delete_preset():
+    data = request.get_json()
+    name = data.get('name')
+    if not name:
+        return jsonify(success=False, error="Name is required")
+        
+    path = os.path.join(PRESETS_DIR, os.path.basename(name))
+    if os.path.exists(path):
+        os.remove(path)
+        return jsonify(success=True)
+    return jsonify(success=False, error="Preset not found")
+
+@webinterface.route('/api/presets/rename', methods=['POST'])
+def rename_preset():
+    data = request.get_json()
+    old_name = data.get('old_name')
+    new_name = data.get('new_name')
+    
+    if not old_name or not new_name:
+        return jsonify(success=False, error="Both names required")
+        
+    if not new_name.endswith('.xml'):
+        new_name += '.xml'
+        
+    old_path = os.path.join(PRESETS_DIR, os.path.basename(old_name))
+    new_path = os.path.join(PRESETS_DIR, os.path.basename(new_name))
+    
+    if os.path.exists(old_path):
+        if os.path.exists(new_path):
+             return jsonify(success=False, error="New name already exists")
+        os.rename(old_path, new_path)
+        return jsonify(success=True)
+    return jsonify(success=False, error="Preset not found")
+
+@webinterface.route('/api/presets/upload', methods=['POST'])
+def upload_preset():
+    if 'file' not in request.files:
+        return jsonify(success=False, error="No file part")
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify(success=False, error="No selected file")
+    if file and file.filename.endswith('.xml'):
+        filename = os.path.basename(file.filename)
+        
+        # Ensure presets directory exists
+        try:
+            if not os.path.exists(PRESETS_DIR):
+                os.makedirs(PRESETS_DIR, exist_ok=True)
+        except Exception as e:
+            return jsonify(success=False, error=f"Failed to create directory: {e}")
+            
+        file.save(os.path.join(PRESETS_DIR, filename))
+        return jsonify(success=True)
+    return jsonify(success=False, error="Invalid file type")
+
+@webinterface.route('/api/presets/download', methods=['GET'])
+def download_preset():
+    name = request.args.get('name')
+    if not name:
+        return abort(404)
+    path = os.path.join(PRESETS_DIR, os.path.basename(name))
+    if os.path.exists(path):
+        return send_file(path, as_attachment=True)
+    return abort(404)
+
+def reload_app_state():
+    from lib.usersettings import UserSettings
+    
+    # Reload UserSettings
+    app_state.usersettings = UserSettings()
+    
+    # Update existing LedSettings object properties instead of creating new one
+    # This ensures VisualizerApp.ci.ledsettings still references the same object
+    ls = app_state.ledsettings
+    
+    # Update usersettings reference and reload all settings
+    ls.usersettings = app_state.usersettings
+    ls.reload_settings()
+    
+    # Trigger color mode refresh in VisualizerApp main loop
+    ls.incoming_setting_change = True
+    
+    # Update component references to use new UserSettings and LedSettings instances
+    app_state.ledstrip.usersettings = app_state.usersettings
+    app_state.ledstrip.ledsettings = app_state.ledsettings
+    
+    app_state.menu.usersettings = app_state.usersettings
+    app_state.menu.ledsettings = app_state.ledsettings
+    
+    # Update menu multicolor if it exists
+    if hasattr(ls, 'menu') and ls.menu:
+        ls.menu.update_multicolor(ls.multicolor)
+    
+    app_state.midiports.usersettings = app_state.usersettings
+    
+    if hasattr(app_state, 'learning') and app_state.learning:
+        app_state.learning.usersettings = app_state.usersettings
+        app_state.learning.ledsettings = app_state.ledsettings
+

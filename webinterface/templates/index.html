@@ -161,6 +161,7 @@
          x-data="setup()" x-init="$refs.loading.classList.add('hidden')">
         <!-- Loading screen -->
         <div
+                id="loading_screen"
                 x-ref="loading"
                 class="fixed inset-0 z-50 flex items-center justify-center text-white bg-black bg-opacity-50"
                 style="backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px)"
@@ -593,6 +594,7 @@
 <script src="../static/xml2abc.js" defer></script>
 
 <!-- Application Scripts -->
+<script src="../static/js/notifications.js"></script>
 <script src="../static/translations.js" defer></script>
 <script src="../static/js/files.js" defer></script>
 <script src="../static/js/number-input.js" defer></script>
@@ -738,6 +740,224 @@
         });
     }
 
+    function get_presets() {
+        if(document.getElementById("preset_list") == null) return;
+        
+        $.ajax({
+            url: '/api/presets',
+            type: 'GET',
+            success: function (response) {
+                if (response.success) {
+                    var select = document.getElementById("preset_list");
+                    if (!select) return;
+                    var current = select.value;
+                    select.innerHTML = '<option value="" disabled selected>' + translate('select_preset') + '</option>';
+                    response.presets.forEach(function (preset) {
+                        var option = document.createElement("option");
+                        option.value = preset;
+                        option.text = preset.replace('.xml', '');
+                        select.appendChild(option);
+                    });
+                    if(current && Array.from(select.options).some(opt => opt.value === current)) {
+                        select.value = current;
+                    } else {
+                        select.value = "";
+                    }
+                }
+            }
+        });
+    }
+
+    function save_preset() {
+        var name = prompt(translate('enter_preset_name'));
+        if (name) {
+            $.ajax({
+                url: '/api/presets',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({name: name}),
+                success: function (response) {
+                    if (response.success) {
+                        get_presets();
+                        showAlert(translate('preset_saved_successfully'), 'info');
+                    } else {
+                        showAlert(translate('preset_error') + response.error, 'error');
+                    }
+                }
+            });
+        }
+    }
+
+    function overwrite_preset() {
+        var select = document.getElementById("preset_list");
+        var name = select.value;
+        if (!name) {
+            showAlert(translate('please_select_preset_to_save'), 'warning');
+            return;
+        }
+        
+        showConfirm(translate('overwrite_preset_confirm').replace('{0}', name.replace('.xml', '')), function() {
+            $.ajax({
+                url: '/api/presets',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({name: name}),
+                success: function (response) {
+                    if (response.success) {
+                        showAlert(translate('preset_saved_successfully'), 'info');
+                    } else {
+                        showAlert(translate('preset_error') + response.error, 'error');
+                    }
+                }
+            });
+        });
+    }
+
+    function load_preset() {
+        var select = document.getElementById("preset_list");
+        var name = select.value;
+        if (!name) {
+            showAlert(translate('please_select_preset_first'), 'warning');
+            return;
+        }
+        
+        showConfirm(translate('load_preset_confirm').replace('{0}', name.replace('.xml', '')), function() {
+            var loading = document.getElementById("loading_screen");
+            if(loading) loading.classList.remove("hidden");
+            
+            $.ajax({
+                url: '/api/presets/load',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({name: name}),
+                timeout: 60000, // 60 second timeout
+                success: function (response) {
+                    if (response.success) {
+                        // Refresh settings without full page reload
+                        if (typeof get_settings === 'function') {
+                            get_settings(false); // Update homepage display
+                        }
+                        // Check if ledsettings page is currently loaded by checking for key elements
+                        var ledSettingsPageLoaded = document.getElementById('brightness') !== null && 
+                                                   document.getElementById('color_mode') !== null &&
+                                                   document.getElementById('light_mode') !== null;
+                        if (ledSettingsPageLoaded) {
+                            // Reload the ledsettings page to refresh all settings
+                            if (typeof loadAjax === 'function') {
+                                loadAjax('ledsettings');
+                            }
+                        }
+                        if (typeof get_ports === 'function') {
+                            get_ports(); // Refresh port information
+                        }
+                        if(loading) loading.classList.add("hidden");
+                    } else {
+                        if(loading) loading.classList.add("hidden");
+                        showAlert(translate('preset_error') + response.error, 'error');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    if(loading) loading.classList.add("hidden");
+                    if (status === 'timeout') {
+                        showAlert(translate('preset_load_timeout'), 'error');
+                    } else {
+                        showAlert(translate('preset_load_error') + error, 'error');
+                    }
+                }
+            });
+        });
+    }
+
+    function delete_preset() {
+        var select = document.getElementById("preset_list");
+        var name = select.value;
+        if (!name) {
+            showAlert(translate('please_select_preset_first'), 'warning');
+            return;
+        }
+        
+        showConfirm(translate('delete_preset_confirm').replace('{0}', name), function() {
+            $.ajax({
+                url: '/api/presets/delete',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({name: name}),
+                success: function (response) {
+                    if (response.success) {
+                        get_presets();
+                        select.value = "";
+                    } else {
+                        showAlert(translate('preset_error') + response.error, 'error');
+                    }
+                }
+            });
+        });
+    }
+
+    function rename_preset() {
+        var select = document.getElementById("preset_list");
+        var old_name = select.value;
+        if (!old_name) {
+            showAlert(translate('please_select_preset_first'), 'warning');
+            return;
+        }
+        
+        var new_name = prompt(translate('enter_new_preset_name'), old_name.replace('.xml', ''));
+        if (new_name && new_name + ".xml" != old_name) {
+            $.ajax({
+                url: '/api/presets/rename',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({old_name: old_name, new_name: new_name}),
+                success: function (response) {
+                    if (response.success) {
+                        get_presets();
+                    } else {
+                        showAlert(translate('preset_error') + response.error, 'error');
+                    }
+                }
+            });
+        }
+    }
+
+    function upload_preset(input) {
+        if (input.files && input.files[0]) {
+            var formData = new FormData();
+            formData.append('file', input.files[0]);
+            
+            $.ajax({
+                url: '/api/presets/upload',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.success) {
+                        get_presets();
+                        showAlert(translate('preset_uploaded_successfully'), 'info');
+                    } else {
+                        showAlert(translate('preset_error') + response.error, 'error');
+                    }
+                    input.value = ''; 
+                }
+            });
+        }
+    }
+
+    function download_preset() {
+        var select = document.getElementById("preset_list");
+        var name = select.value;
+        if (!name) {
+            showAlert(translate('please_select_preset_first'), 'warning');
+            return;
+        }
+        window.location.href = '/api/presets/download?name=' + encodeURIComponent(name);
+    }
+
 </script>
+
+<!-- Notification System Container -->
+<div id="notification-container"></div>
+
 </body>
 </html>

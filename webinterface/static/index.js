@@ -70,11 +70,15 @@ function loadAjax(subpage) {
                         get_current_sequence_setting();
                         clearInterval(homepage_interval);
                         setAdvancedMode(advancedMode);
+                        if(typeof get_presets === 'function') {
+                            get_presets();
+                        }
                         break;
                     case "ledanimations":
                         get_led_idle_animation_settings();
                         clearInterval(homepage_interval);
                         populate_colormaps(["colormap_anim_id"]);
+                        // Start time update for schedule card (will be started by get_led_idle_animation_settings callback)
                         break;
                     case "songs":
                         initialize_songs();
@@ -136,9 +140,8 @@ function handleDisplayTypeChange(value, selectElement) {
     // Show confirmation dialog with translation
     const displayName = value === '1in44' ? '1.44 inch' : '1.3 inch';
     const confirmMessage = translate('lcd_type_change_confirm').replace('{0}', displayName);
-    const confirmed = confirm(confirmMessage);
     
-    if (confirmed) {
+    showConfirm(confirmMessage, function() {
         // Store the value we're changing to as current for next time
         selectElement.setAttribute('data-current-value', value);
         
@@ -153,7 +156,7 @@ function handleDisplayTypeChange(value, selectElement) {
                 const response = JSON.parse(this.responseText);
                 if (response.success === true) {
                     // Show success message with translation
-                    alert(translate('lcd_type_change_success'));
+                    showAlert(translate('lcd_type_change_success'), 'info');
                     // Reload page after delay to allow visualizer to restart (30 seconds)
                     setTimeout(function() {
                         window.location.reload();
@@ -165,7 +168,7 @@ function handleDisplayTypeChange(value, selectElement) {
                     selectElement.disabled = false;
                     selectElement.style.opacity = '1';
                     const errorMsg = translate('lcd_type_change_error').replace('{0}', response.error || 'Unknown error');
-                    alert(errorMsg);
+                    showAlert(errorMsg, 'error');
                 }
             } else if (this.readyState === 4) {
                 // Revert on error
@@ -174,16 +177,16 @@ function handleDisplayTypeChange(value, selectElement) {
                 selectElement.disabled = false;
                 selectElement.style.opacity = '1';
                 const errorMsg = translate('lcd_type_change_error').replace('{0}', 'Please try again.');
-                alert(errorMsg);
+                showAlert(errorMsg, 'error');
             }
         };
         xhttp.open("GET", "/api/change_setting?setting_name=display_type&value=" + value, true);
         xhttp.send();
-    } else {
+    }, function() {
         // Revert to previous value if cancelled
         selectElement.value = actualPrevious;
         selectElement.setAttribute('data-current-value', actualPrevious);
-    }
+    });
 }
 
 function handleLedPinChange(value, selectElement) {
@@ -194,9 +197,8 @@ function handleLedPinChange(value, selectElement) {
     
     // Show confirmation dialog with translation
     const confirmMessage = translate('led_pin_change_confirm').replace('{0}', value);
-    const confirmed = confirm(confirmMessage);
     
-    if (confirmed) {
+    showConfirm(confirmMessage, function() {
         // Store the value we're changing to as current for next time
         selectElement.setAttribute('data-current-value', value);
         
@@ -211,7 +213,7 @@ function handleLedPinChange(value, selectElement) {
                 const response = JSON.parse(this.responseText);
                 if (response.success === true) {
                     // Show success message with translation
-                    alert(translate('led_pin_change_success'));
+                    showAlert(translate('led_pin_change_success'), 'info');
                     // Reload page after delay to allow visualizer to restart (30 seconds)
                     setTimeout(function() {
                         window.location.reload();
@@ -223,7 +225,7 @@ function handleLedPinChange(value, selectElement) {
                     selectElement.disabled = false;
                     selectElement.style.opacity = '1';
                     const errorMsg = translate('led_pin_change_error').replace('{0}', response.error || 'Unknown error');
-                    alert(errorMsg);
+                    showAlert(errorMsg, 'error');
                 }
             } else if (this.readyState === 4) {
                 // Revert on error
@@ -232,16 +234,16 @@ function handleLedPinChange(value, selectElement) {
                 selectElement.disabled = false;
                 selectElement.style.opacity = '1';
                 const errorMsg = translate('led_pin_change_error').replace('{0}', 'Please try again.');
-                alert(errorMsg);
+                showAlert(errorMsg, 'error');
             }
         };
         xhttp.open("GET", "/api/change_setting?setting_name=led_pin&value=" + value, true);
         xhttp.send();
-    } else {
+    }, function() {
         // Revert to previous value if cancelled
         selectElement.value = actualPrevious;
         selectElement.setAttribute('data-current-value', actualPrevious);
-    }
+    });
 }
 
 function change_setting(setting_name, value, second_value = false, disable_sequence = false) {
@@ -813,9 +815,9 @@ function create_connection_line(sourceEl, destEl, container, connection, colorIn
     
     // Add click handler to delete connection
     path.addEventListener('click', () => {
-        if (confirm(`Delete connection:\n${connection.source} → ${connection.destination}\n\nThis will stop data flow from sender to receiver.`)) {
+        showConfirm(`Delete connection:\n${connection.source} → ${connection.destination}\n\nThis will stop data flow from sender to receiver.`, function() {
             delete_port_connection(connection.source, connection.destination);
-        }
+        });
     });
     
     // Add hover effect

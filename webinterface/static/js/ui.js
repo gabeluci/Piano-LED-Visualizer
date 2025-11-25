@@ -190,6 +190,14 @@ function get_homepage_data_loop() {
                 }
             }
 
+            // change value of select based on response_pc_stats.timezone
+            if (response_pc_stats.timezone) {
+                const timezoneSelect = document.getElementById("timezone");
+                if (timezoneSelect) {
+                    timezoneSelect.value = response_pc_stats.timezone;
+                }
+            }
+
             // cover_state is already handled above with null check
 
 
@@ -584,7 +592,10 @@ function get_settings(home = true) {
                     document.getElementById("backlight_color").dispatchEvent(new Event('input'));
                 }
 
-                document.getElementById("light_mode").value = response["light_mode"];
+                const lightModeEl = document.getElementById("light_mode");
+                if (lightModeEl) {
+                    lightModeEl.value = response["light_mode"];
+                }
                 if (response["light_mode"] === "Fading") {
                     document.getElementById('fading').hidden = false;
                     document.getElementById('fading_speed').value = response["fading_speed"];
@@ -643,12 +654,18 @@ function get_settings(home = true) {
 
                 document.getElementById('color_mode').onchange();
             } else {
-                document.getElementById("color_mode").innerHTML = response["color_mode"];
-                document.getElementById("light_mode").innerHTML = response["light_mode"];
-                document.getElementById("brightness_percent").innerHTML = response["brightness"] + "%";
-                document.getElementById("backlight_brightness_percent").innerHTML = response["backlight_brightness"] + "%";
-                document.getElementById("input_port").innerHTML = response["input_port"];
-                document.getElementById("playback_port").innerHTML = response["play_port"];
+                const colorModeEl = document.getElementById("color_mode");
+                if (colorModeEl) colorModeEl.innerHTML = response["color_mode"];
+                const lightModeEl = document.getElementById("light_mode");
+                if (lightModeEl) lightModeEl.innerHTML = response["light_mode"];
+                const brightnessPercentEl = document.getElementById("brightness_percent");
+                if (brightnessPercentEl) brightnessPercentEl.innerHTML = response["brightness"] + "%";
+                const backlightBrightnessPercentEl = document.getElementById("backlight_brightness_percent");
+                if (backlightBrightnessPercentEl) backlightBrightnessPercentEl.innerHTML = response["backlight_brightness"] + "%";
+                const inputPortEl = document.getElementById("input_port");
+                if (inputPortEl) inputPortEl.innerHTML = response["input_port"];
+                const playbackPortEl = document.getElementById("playback_port");
+                if (playbackPortEl) playbackPortEl.innerHTML = response["play_port"];
             }
 
         }
@@ -703,10 +720,343 @@ function get_led_idle_animation_settings(){
             if (document.getElementById("screen_off_delay")) {
                 document.getElementById("screen_off_delay").value = response["screen_off_delay"];
             }
+            
+            // Load schedules after loading other settings
+            load_schedules();
+            
+            // Start time update for schedule card
+            update_system_time();
+            setInterval(update_system_time, 1000); // Update every second
         }
     }
     xhttp.open("GET", "/api/get_idle_animation_settings", true);
     xhttp.send();
+}
+
+function update_system_time() {
+    const timeDisplay = document.getElementById("current_time_display");
+    if (!timeDisplay) return;
+    
+    const xhttp = new XMLHttpRequest();
+    xhttp.timeout = 2000;
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            const response = JSON.parse(this.responseText);
+            if (response.success && response.time) {
+                // Extract just the time portion (HH:MM:SS) from the date output
+                // Linux date output format: "Day Mon DD HH:MM:SS TZ YYYY"
+                const timeMatch = response.time.match(/(\d{2}:\d{2}:\d{2})/);
+                if (timeMatch) {
+                    timeDisplay.textContent = timeMatch[1];
+                } else {
+                    // Fallback: use the full string if pattern doesn't match
+                    timeDisplay.textContent = response.time;
+                }
+            }
+        }
+    };
+    xhttp.onerror = function() {
+        // On error, use client-side time as fallback
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        if (timeDisplay) {
+            timeDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+        }
+    };
+    xhttp.open("GET", "/api/get_system_time", true);
+    xhttp.send();
+}
+
+// Schedule management functions
+let current_schedules = [];
+
+function load_schedules() {
+    const xhttp = new XMLHttpRequest();
+    xhttp.timeout = 5000;
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            let response = JSON.parse(this.responseText);
+            current_schedules = response["idle_animation_schedule"] || [];
+            render_schedules();
+        }
+    };
+    xhttp.open("GET", "/api/get_idle_animation_settings", true);
+    xhttp.send();
+}
+
+function render_schedules() {
+    const scheduleList = document.getElementById("schedule_list");
+    if (!scheduleList) return;
+    
+    scheduleList.innerHTML = "";
+    
+    if (current_schedules.length === 0) {
+        scheduleList.innerHTML = '<div class="text-xs text-gray-500 dark:text-gray-400 py-2">' + translate('schedule_no_schedules') + '</div>';
+        return;
+    }
+    
+    const dayNames = [
+        translate('schedule_day_mon'),
+        translate('schedule_day_tue'),
+        translate('schedule_day_wed'),
+        translate('schedule_day_thu'),
+        translate('schedule_day_fri'),
+        translate('schedule_day_sat'),
+        translate('schedule_day_sun')
+    ];
+    
+    current_schedules.forEach((schedule, index) => {
+        const scheduleItem = document.createElement("div");
+        scheduleItem.className = "glass-light rounded-glass p-2 flex items-center justify-between";
+        
+        const days = schedule.days || [];
+        const daysStr = days.length > 0 
+            ? days.sort((a, b) => a - b).map(d => dayNames[d]).join(", ")
+            : translate('schedule_no_days');
+        
+        const enabledClass = schedule.enabled !== false ? "text-green-600" : "text-gray-400";
+        const enabledText = schedule.enabled !== false ? translate('schedule_enabled') : translate('schedule_disabled');
+        
+        scheduleItem.innerHTML = `
+            <div class="flex-1">
+                <div class="text-sm font-semibold ${enabledClass}">${schedule.startTime} - ${schedule.endTime}</div>
+                <div class="text-xs text-gray-600 dark:text-gray-400">${daysStr}</div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="toggle_schedule_enabled(${index})" class="text-xs px-2 py-1 rounded-glass glass-light hover:glass transition-smooth-fast ${enabledClass}">
+                    ${enabledText}
+                </button>
+                <button onclick="remove_schedule(${index})" class="text-xs px-2 py-1 rounded-glass glass-light hover:glass transition-smooth-fast text-red-600">
+                    ${translate('schedule_delete')}
+                </button>
+            </div>
+        `;
+        
+        scheduleList.appendChild(scheduleItem);
+    });
+}
+
+function save_schedules(schedule_list) {
+    return new Promise((resolve, reject) => {
+        const xhttp = new XMLHttpRequest();
+        xhttp.timeout = 5000;
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                if (this.status === 200) {
+                    const response = JSON.parse(this.responseText);
+                    if (response.success) {
+                        current_schedules = schedule_list;
+                        render_schedules();
+                        hide_schedule_error();
+                        resolve(true);
+                    } else {
+                        show_schedule_error(response.error || translate('schedule_save_failed'));
+                        reject(new Error(response.error || translate('schedule_save_failed')));
+                    }
+                } else {
+                    show_schedule_error(translate('schedule_network_error'));
+                    reject(new Error("Network error"));
+                }
+            }
+        };
+        xhttp.open("POST", "/api/save_idle_animation_schedule", true);
+        xhttp.setRequestHeader("Content-Type", "application/json");
+        xhttp.send(JSON.stringify({ schedule: schedule_list }));
+    });
+}
+
+function show_schedule_error(message) {
+    let errorDiv = document.getElementById("schedule_error");
+    if (!errorDiv) {
+        const scheduleList = document.getElementById("schedule_list");
+        if (scheduleList) {
+            errorDiv = document.createElement("div");
+            errorDiv.id = "schedule_error";
+            errorDiv.className = "text-xs text-red-600 dark:text-red-400 py-2 px-2 rounded-glass glass-light mb-2";
+            scheduleList.parentNode.insertBefore(errorDiv, scheduleList);
+        } else {
+            return;
+        }
+    }
+    errorDiv.textContent = message;
+    errorDiv.style.display = "block";
+}
+
+function hide_schedule_error() {
+    const errorDiv = document.getElementById("schedule_error");
+    if (errorDiv) {
+        errorDiv.style.display = "none";
+    }
+}
+
+function check_schedule_overlaps(schedule_list) {
+    if (!schedule_list || schedule_list.length <= 1) {
+        return { valid: true, error: null };
+    }
+    
+    const enabled_schedules = schedule_list.filter(s => s.enabled !== false);
+    if (enabled_schedules.length <= 1) {
+        return { valid: true, error: null };
+    }
+    
+    for (let i = 0; i < enabled_schedules.length; i++) {
+        for (let j = i + 1; j < enabled_schedules.length; j++) {
+            const s1 = enabled_schedules[i];
+            const s2 = enabled_schedules[j];
+            
+            const days1 = new Set(s1.days || []);
+            const days2 = new Set(s2.days || []);
+            
+            const commonDays = [...days1].filter(d => days2.has(d));
+            if (commonDays.length === 0) {
+                continue;
+            }
+            
+            // Parse times
+            const [h1, m1] = s1.startTime.split(':').map(Number);
+            const [h2, m2] = s1.endTime.split(':').map(Number);
+            const [h3, m3] = s2.startTime.split(':').map(Number);
+            const [h4, m4] = s2.endTime.split(':').map(Number);
+            
+            const start1 = h1 * 60 + m1;
+            const end1 = h2 * 60 + m2;
+            const start2 = h3 * 60 + m3;
+            const end2 = h4 * 60 + m4;
+            
+            // Check for overlap
+            let overlap = false;
+            
+            if (start1 <= end1 && start2 <= end2) {
+                // Neither crosses midnight
+                overlap = !(end1 < start2 || end2 < start1);
+            } else if (start1 > end1 && start2 <= end2) {
+                // First crosses midnight
+                overlap = start2 <= end1 || start1 <= end2;
+            } else if (start1 <= end1 && start2 > end2) {
+                // Second crosses midnight
+                overlap = start1 <= end2 || start2 <= end1;
+            } else {
+                // Both cross midnight
+                overlap = true;
+            }
+            
+            if (overlap) {
+                const dayNames = [
+                    translate('schedule_day_mon'),
+                    translate('schedule_day_tue'),
+                    translate('schedule_day_wed'),
+                    translate('schedule_day_thu'),
+                    translate('schedule_day_fri'),
+                    translate('schedule_day_sat'),
+                    translate('schedule_day_sun')
+                ];
+                const commonDaysStr = commonDays.sort((a, b) => a - b).map(d => dayNames[d]).join(", ");
+                return {
+                    valid: false,
+                    error: `${translate('schedule_overlap_detected')} ${commonDaysStr}: ${s1.startTime}-${s1.endTime} ${translate('schedule_overlaps_with')} ${s2.startTime}-${s2.endTime}`
+                };
+            }
+        }
+    }
+    
+    return { valid: true, error: null };
+}
+
+function add_schedule() {
+    const startInput = document.getElementById("schedule_start");
+    const endInput = document.getElementById("schedule_end");
+    const dayCheckboxes = document.querySelectorAll(".schedule-day");
+    
+    if (!startInput || !endInput) {
+        show_schedule_error(translate('schedule_form_not_found'));
+        return;
+    }
+    
+    const startTime = startInput.value;
+    const endTime = endInput.value;
+    
+    if (!startTime || !endTime) {
+        show_schedule_error(translate('schedule_select_times'));
+        return;
+    }
+    
+    const selectedDays = [];
+    dayCheckboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+            selectedDays.push(parseInt(checkbox.value));
+        }
+    });
+    
+    if (selectedDays.length === 0) {
+        show_schedule_error(translate('schedule_select_weekday'));
+        return;
+    }
+    
+    const newSchedule = {
+        enabled: true,
+        startTime: startTime,
+        endTime: endTime,
+        days: selectedDays
+    };
+    
+    // Check for overlaps with existing schedules
+    const testSchedules = [...current_schedules, newSchedule];
+    const overlapCheck = check_schedule_overlaps(testSchedules);
+    
+    if (!overlapCheck.valid) {
+        show_schedule_error(overlapCheck.error);
+        return;
+    }
+    
+    // Add schedule and save
+    save_schedules(testSchedules)
+        .then(() => {
+            // Clear form
+            startInput.value = "";
+            endInput.value = "";
+            dayCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        })
+        .catch(() => {
+            // Error already shown by save_schedules
+        });
+}
+
+function remove_schedule(index) {
+    if (index < 0 || index >= current_schedules.length) {
+        return;
+    }
+    
+    const newSchedules = current_schedules.filter((_, i) => i !== index);
+    save_schedules(newSchedules).catch(() => {
+        // Error already shown by save_schedules
+    });
+}
+
+function toggle_schedule_enabled(index) {
+    if (index < 0 || index >= current_schedules.length) {
+        return;
+    }
+    
+    const newSchedules = [...current_schedules];
+    newSchedules[index] = {
+        ...newSchedules[index],
+        enabled: newSchedules[index].enabled !== false ? false : true
+    };
+    
+    // Check for overlaps after toggle
+    const overlapCheck = check_schedule_overlaps(newSchedules);
+    if (!overlapCheck.valid) {
+        show_schedule_error(overlapCheck.error);
+        return;
+    }
+    
+    save_schedules(newSchedules).catch(() => {
+        // Error already shown by save_schedules
+    });
 }
 
 // Animation Speed Control Functions
@@ -827,7 +1177,10 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
             }
 
             if (response["color_mode"] === "Single") {
-                document.getElementById("current_led_color").innerHTML = '<svg width="100%" height="45px">' +
+                const currentLedColorEl = document.getElementById("current_led_color");
+                if (!currentLedColorEl) return;
+                
+                currentLedColorEl.innerHTML = '<svg width="100%" height="45px">' +
                     '<defs>\n' +
                     '   <linearGradient id="gradient_single" x1=".5" y1="1" x2=".5">\n' +
                     '       <stop stop-color="' + response["led_color"] + '" stop-opacity="0"/>\n' +
@@ -836,7 +1189,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     '   </linearGradient>\n' +
                     '</defs>' +
                     '<rect width="100%" height="45px" fill="url(#gradient_single)" /></svg>'
-                document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-50" ' +
+                currentLedColorEl.innerHTML += '<img class="w-full opacity-50" ' +
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
 
                 if (is_editing_sequence === "true") {
@@ -850,8 +1203,10 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
 
             }
             if (response["color_mode"] === "Multicolor") {
+                const currentLedColorEl = document.getElementById("current_led_color");
+                if (!currentLedColorEl) return;
 
-                document.getElementById("current_led_color").innerHTML = '';
+                currentLedColorEl.innerHTML = '';
                 const new_multicolor = {};
                 response["multicolor"].forEach(function (item, index) {
                     const multicolor_hex = rgbToHex(item[0], item[1], item[2]);
@@ -862,7 +1217,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
 
                     left_spacing = Math.min(Math.max(parseInt(left_spacing), 0), 88);
 
-                    document.getElementById("current_led_color").innerHTML += '<svg class="mb-2" ' +
+                    currentLedColorEl.innerHTML += '<svg class="mb-2" ' +
                         'style="filter: drop-shadow(0px 5px 15px ' + multicolor_hex + ');margin-left:' + left_spacing + '%" width="100%" height="10px">' +
                         '<rect width="' + length + '%" height="20" fill="' + multicolor_hex + '" /></svg>';
 
@@ -873,7 +1228,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     }
 
                 });
-                document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-100" ' +
+                currentLedColorEl.innerHTML += '<img class="w-full opacity-100" ' +
                     'style="height: 40px;width:100%;" src="../static/piano.svg">';
 
                 if (is_editing_sequence === "true" && is_loading_step === true) {
@@ -886,11 +1241,15 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
 
             }
             if (response["color_mode"] === "Gradient") {
-                const is_reversed = config_settings["led_reverse"] === "1";
+                const settings = config_settings || response || {};
+                const is_reversed = settings["led_reverse"] === "1";
                 const start_color = is_reversed ? response["gradient_end_color"] : response["gradient_start_color"];
                 const end_color = is_reversed ? response["gradient_start_color"] : response["gradient_end_color"];
 
-                document.getElementById("current_led_color").innerHTML = '<svg ' +
+                const currentLedColorEl = document.getElementById("current_led_color");
+                if (!currentLedColorEl) return;
+                
+                currentLedColorEl.innerHTML = '<svg ' +
                     'width="100%" height="45px">\n' +
                     '      <defs>\n' +
                     '        <linearGradient id="g1">\n' +
@@ -906,7 +1265,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     '      <rect width="100%" height="45px" fill=\'url(#g1)\'/>' +
                     '      <rect width="100%" height="45px" fill=\'url(#g2)\'/>\n' +
                     '    </svg>'
-                document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-50" ' +
+                currentLedColorEl.innerHTML += '<img class="w-full opacity-50" ' +
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
 
                 if (is_editing_sequence === "true") {
@@ -924,7 +1283,10 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
             }
 
             if (response["color_mode"] === "Speed") {
-                document.getElementById("current_led_color").innerHTML = '<svg ' +
+                const currentLedColorEl = document.getElementById("current_led_color");
+                if (!currentLedColorEl) return;
+                
+                currentLedColorEl.innerHTML = '<svg ' +
                     'width="100%" height="45px">\n' +
                     '      <defs>\n' +
                     '        <linearGradient id="g1">\n' +
@@ -940,7 +1302,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     '      <rect width="100%" height="45px" fill=\'url(#g1)\'/>' +
                     '      <rect width="100%" height="45px" fill=\'url(#g2)\'/>\n' +
                     '    </svg>'
-                document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-50" ' +
+                currentLedColorEl.innerHTML += '<img class="w-full opacity-50" ' +
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">' +
                     '<div class="flex"><p class="w-full text-xs italic text-gray-600 dark:text-gray-400">slowest</p>' +
                     '<p class="w-full text-xs italic text-right text-gray-600 dark:text-gray-400">fastest</p></div>';
@@ -979,7 +1341,10 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 rainbow_example += '</svg>';
                 rainbow_example += '<img class="w-full opacity-50" style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
                 rainbow_example += '<p class="text-xs italic text-right text-gray-600 dark:text-gray-400">*approximate look</p>';
-                document.getElementById("current_led_color").innerHTML = rainbow_example;
+                const currentLedColorEl = document.getElementById("current_led_color");
+                if (currentLedColorEl) {
+                    currentLedColorEl.innerHTML = rainbow_example;
+                }
 
                 window.cancelAnimationFrame(rainbow_animation);
                 let count = -1;
@@ -1052,10 +1417,10 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
             }
 
             if (response.color_mode === "VelocityRainbow") {
-                const offset = ((~~document.getElementById("velocityrainbow_offset").value % 256) + 256) % 256;
-                const scale = ~~document.getElementById("velocityrainbow_scale").value;
-                const curve = ~~document.getElementById("velocityrainbow_curve").value;
-                const colormap = document.getElementById("velocityrainbow_colormap").value;
+                const offset = ((~~(document.getElementById("velocityrainbow_offset")?.value ?? response["velocityrainbow_offset"]) % 256) + 256) % 256;
+                const scale = ~~(document.getElementById("velocityrainbow_scale")?.value ?? response["velocityrainbow_scale"]);
+                const curve = ~~(document.getElementById("velocityrainbow_curve")?.value ?? response["velocityrainbow_curve"]);
+                const colormap = document.getElementById("velocityrainbow_colormap")?.value ?? response["velocityrainbow_colormap"];
 
                 if (!gradients || !gradients[colormap]) {
                     return;
@@ -1091,7 +1456,10 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 velocity_rainbow_example += '</svg>';
                 velocity_rainbow_example += '<img class="w-full opacity-50" style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
                 
-                document.getElementById("current_led_color").innerHTML = velocity_rainbow_example;
+                const currentLedColorEl = document.getElementById("current_led_color");
+                if (currentLedColorEl) {
+                    currentLedColorEl.innerHTML = velocity_rainbow_example;
+                }
 
 
                 if (is_editing_sequence === "true") {
@@ -1113,7 +1481,10 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
             if (response["color_mode"] === "Scale") {
                 //document.getElementById("led_color").innerHTML = response.scale_key
                 let scale_key_array = [response["key_in_scale_color"], response["key_not_in_scale_color"]];
-                document.getElementById("current_led_color").innerHTML = '<div id="led_color_scale" class="flex"></div>';
+                const currentLedColorEl = document.getElementById("current_led_color");
+                if (!currentLedColorEl) return;
+                
+                currentLedColorEl.innerHTML = '<div id="led_color_scale" class="flex"></div>';
 
                 scale_key_array.forEach(function (item, index) {
                     document.getElementById("led_color_scale").innerHTML += '<svg width="100%" height="45px">' +
@@ -1126,7 +1497,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                         '</defs>' +
                         '<rect width="100%" height="45px" fill="url(#gradient_single_' + item + ')" /></svg>';
                 });
-                document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-50" ' +
+                currentLedColorEl.innerHTML += '<img class="w-full opacity-50" ' +
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">' +
                     '<div class="flex"><p class="w-full text-xs italic text-gray-600 dark:text-gray-400">in a scale</p>' +
                     '<p class="w-full text-xs italic text-right text-gray-600 dark:text-gray-400">not in a scale</p></div>';

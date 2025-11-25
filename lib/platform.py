@@ -244,7 +244,7 @@ class PlatformRasp(PlatformBase):
             logger.warning(f"Error checking hotspot status: {str(e)}")
             return False
 
-    def manage_hotspot(self, hotspot, usersettings, midiports, first_run=False):
+    def manage_hotspot(self, hotspot, usersettings, midiports, first_run=False, current_time=None):
         if first_run:
             self.create_hotspot_profile()
             if int(usersettings.get("is_hotspot_active")):
@@ -260,7 +260,8 @@ class PlatformRasp(PlatformBase):
                 else:
                     logger.info("Hotspot is already running")
 
-        current_time = time.time()
+        if current_time is None:
+            current_time = time.time()
         if not hotspot.last_wifi_check_time:
             hotspot.last_wifi_check_time = current_time
 
@@ -438,4 +439,82 @@ class PlatformRasp(PlatformBase):
             return False
         except Exception as e:
             logger.warning(f"An unexpected error occurred: {e}")
+            return False
+
+    @staticmethod
+    def get_current_timezone():
+        """Get the current system timezone."""
+        try:
+            # Try using timedatectl first (preferred method)
+            result = subprocess.run(
+                ['timedatectl', 'show', '-p', 'Timezone', '--value'],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            timezone = result.stdout.strip()
+            if timezone:
+                return timezone
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            pass
+        
+        try:
+            # Fallback to reading /etc/timezone
+            if os.path.exists('/etc/timezone'):
+                with open('/etc/timezone', 'r') as f:
+                    timezone = f.read().strip()
+                    if timezone:
+                        return timezone
+        except Exception as e:
+            logger.warning(f"Error reading timezone from /etc/timezone: {e}")
+        
+        # Default fallback
+        logger.warning("Could not determine timezone, returning UTC")
+        return "UTC"
+
+    @staticmethod
+    def get_available_timezones():
+        """Get list of available timezones."""
+        try:
+            result = subprocess.run(
+                ['timedatectl', 'list-timezones'],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            timezones = [tz.strip() for tz in result.stdout.split('\n') if tz.strip()]
+            return timezones
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            logger.warning(f"Error getting timezone list: {e}")
+            # Return common timezones as fallback
+            return [
+                "UTC",
+                "America/New_York",
+                "America/Chicago",
+                "America/Denver",
+                "America/Los_Angeles",
+                "Europe/London",
+                "Europe/Paris",
+                "Europe/Berlin",
+                "Asia/Tokyo",
+                "Asia/Shanghai",
+                "Australia/Sydney"
+            ]
+
+    @staticmethod
+    def set_timezone(timezone):
+        """Set the system timezone."""
+        try:
+            logger.info(f"Setting timezone to {timezone}")
+            subprocess.run(
+                ['sudo', 'timedatectl', 'set-timezone', timezone],
+                check=True
+            )
+            logger.info(f"Timezone successfully changed to {timezone}")
+            return True
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"Error setting timezone: {e}")
+            return False
+        except Exception as e:
+            logger.warning(f"Unexpected error setting timezone: {e}")
             return False
