@@ -157,3 +157,50 @@ Group=plv
   `sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/`
 
 Now you can type `sudo reboot` to test if everything works. After 1-3 minutes you should see Visualizer menu on RPi screen.
+
+### 7. **Start/stop when piano is turned on/off (optional)** ###
+
+If you want to leave the Raspberry Pi on at all times, you can set it up to automatically start and stop the visualizer service when the piano is turned on and off. There are two parts to this.
+
+#### Udev rule ####
+
+This will start the service when the piano is turned on.
+
+- First, run `lsusb` while the piano is on and plugged in and find the line for your piano. For example:
+
+```
+Bus 001 Device 096: ID 0f54:0104 Kawai Musical Instruments Mfg. Co., Ltd USB func for MIDI
+```
+
+- Note the values after "ID", in this case `0f54:0104`. Those are the the vendor and product IDs.
+
+- Create a file called `/etc/udev/rules.d/32-startvisualizer.rules`, with the following content:
+
+```
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="0f54", ATTRS{idProduct}=="0104", TAG+="systemd", ENV{SYSTEMD_WANTS}="visualizer.service"
+```
+
+- Replace the `idVendor` and `idProduct` values with the values you got from `lsusb`.
+
+#### Create service dependency ####
+
+This will prevent the service from starting when the Pi turns on if the piano is not on, and will stop the service when the piano is turned off.
+
+- Run `systemctl list-units --type=device --all --full | grep dev-snd-by` and note the device path for your piano. There will likely be multiple values, like the sample output below. Pick the first that looks like it corresponds to your piano. If you find it doesn't work, you can go back and pick a different one.
+
+```
+dev-snd-by\x2did-usb\x2dKAWAI_MI._Mfg._Co._LTD._USB_func_for_MIDI_00000001\x2d00.device   loaded active   plugged USB_func_for_MIDI
+dev-snd-by\x2dpath-platform\x2d3f980000.usb\x2dusb\x2d0:1.3:1.0.device                    loaded active   plugged USB_func_for_MIDI
+dev-snd-by\x2dpath-platform\x2d3f980000.usb\x2dusbv2\x2d0:1.3:1.0.device                  loaded active   plugged USB_func_for_MIDI
+```
+
+- Edit `/lib/systemd/system/visualizer.service` and under the `[Unit]` section add these lines:
+
+```
+After=dev-snd-by\x2did-usb\x2dKAWAI_MI._Mfg._Co._LTD._USB_func_for_MIDI_00000001\x2d00.device
+BindsTo=dev-snd-by\x2did-usb\x2dKAWAI_MI._Mfg._Co._LTD._USB_func_for_MIDI_00000001\x2d00.device
+```
+
+- Replace the values with the device path you found when running `systemctl`.
+
+- Restart the Pi and confirm that the visualizer service starts and stops when the piano turns on and off
