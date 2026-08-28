@@ -84,7 +84,7 @@ class MIDIEventProcessor:
 
             # in learning, only computer guide notes drive LEDs; piano still
             # records and is queued for LearnMIDI matching
-            skip_piano_leds = midi_mode == "learning" and source == "piano"
+            skip_piano_leds = False #midi_mode == "learning" and source == "piano"
 
             if skip_piano_leds:
                 if saving.is_recording and msg_type in ("note_on", "note_off"):
@@ -98,7 +98,7 @@ class MIDIEventProcessor:
                     if msg_type == "note_off" or velocity == 0:
                         handle_note_off(msg, msg_timestamp, note_position, source)
                     elif velocity > 0:
-                        handle_note_on(msg, msg_timestamp, note_position)
+                        handle_note_on(msg, msg_timestamp, note_position, source)
             elif msg_type == "control_change":
                 handle_control_change(msg, msg_timestamp)
 
@@ -132,8 +132,12 @@ class MIDIEventProcessor:
         # A note_off from the computer only reaches the LEDs when it released a
         # guide, so clear the tracking flag or ColorUpdate would keep treating a
         # dead key as a Synthesia guide.
-        if source == "computer" and self.ledstrip.keylist_external_software[note_position] == 1:
-            self.ledstrip.keylist_external_software[note_position] = 0
+        if self.ledstrip.keylist_external_software[note_position] == 1:
+            if source == "computer":
+                self.ledstrip.keylist_external_software[note_position] = 0
+            else:
+                # If the computer turned the light on, don't let the piano turn it off
+                return
         
         velocity = 0
         self.ledstrip.keylist_status[note_position] = 0
@@ -175,7 +179,7 @@ class MIDIEventProcessor:
         if self.saving.is_recording:
             self.saving.add_track("note_off", msg.note, velocity, msg_timestamp)
 
-    def handle_note_on(self, msg, msg_timestamp, note_position):
+    def handle_note_on(self, msg, msg_timestamp, note_position, source):
         """
         Handle note-on MIDI events.
         
@@ -188,6 +192,10 @@ class MIDIEventProcessor:
             note_position: Position on the LED strip corresponding to the note
         """
         velocity = msg.velocity
+
+        if source == "piano" and self.ledstrip.keylist_external_software[note_position] == 1:
+            # If the computer turned the light on, don't let the piano take over
+            return
 
         # Parse channel first so Synthesia left/right guides use hand colors as
         # the stored color of record, not the LED color mode.
